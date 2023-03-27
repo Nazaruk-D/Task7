@@ -2,8 +2,15 @@ import React, {useEffect, useState} from "react";
 import s from "./TikTakToe.module.scss"
 import Board from "./Board/Board";
 import io from 'socket.io-client';
+import {useAppSelector} from "../../store/store";
+import {selectorNameUser} from "../../store/selector/selectorApp";
+import {routes} from "../../routes/routes";
+import {useNavigate} from "react-router-dom";
 
 const TikTakToe = () => {
+    const userName = useAppSelector(selectorNameUser)
+    const navigate = useNavigate()
+
     const [history, setHistory] = useState([{squares: Array(9).fill(null)}]);
     const [stepNumber, setStepNumber] = useState(0);
     const [xIsNext, setXIsNext] = useState(true);
@@ -62,7 +69,9 @@ const TikTakToe = () => {
 
         socket.on('connect', () => {
             console.log('Connected to server');
-            socket.emit('message', 'Hello, server!');
+            if(userName){
+                socket.emit('set-name', userName)
+            }
         });
 
         socket.on('message', (data: any) => {
@@ -76,7 +85,12 @@ const TikTakToe = () => {
         return () => {
             socket.disconnect();
         };
-    }, []);
+    }, [userName]);
+
+
+    useEffect(() => {
+        if (!userName) navigate(routes.login)
+    }, [userName, navigate])
 
 
     return (

@@ -1,0 +1,10 @@
+@import './src/common/styles/mixin';
+
+.headerContainer {
+  @include flex(row, space-between, center, wrap);
+  height: 7vh;
+  margin-bottom: 30px;
+  background-color: #6e6bc0;
+  padding: 20px;
+  box-sizing: border-box;
+}

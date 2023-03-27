@@ -1,0 +1,24 @@
+@import '../../../common/styles/mixin';
+
+.MainDiv {
+  @include flex(column, center, center, wrap);
+  height: 500px;
+  text-align: center;
+
+  h1 {
+    color: grey;
+    margin-bottom: 0.4em;
+  }
+
+  .navlink {
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+    margin-top: 0;
+    background-color: #dadada;
+
+    &:hover {
+      color: grey;
+    }
+  }
+}

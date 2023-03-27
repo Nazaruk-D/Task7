@@ -1,4 +1,4 @@
-@import "../../styles/mixin";
+@import "../../common/styles/mixin";
 
 .tikTakToeContainer {
   @include flex(column, center, center, wrap);

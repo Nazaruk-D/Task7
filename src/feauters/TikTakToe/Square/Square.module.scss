@@ -1,4 +1,4 @@
-@import "../../../styles/mixin";
+@import "../../../common/styles/mixin";
 
 .square {
   @include flex(column, center, center, nowrap);
