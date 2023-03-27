@@ -1,11 +1,24 @@
 import React, {useEffect, useState} from "react";
 import s from "./TikTakToe.module.scss"
 import Board from "./Board/Board";
-import io from 'socket.io-client';
+import io, {Socket} from 'socket.io-client';
 import {useAppSelector} from "../../store/store";
 import {selectorNameUser} from "../../store/selector/selectorApp";
 import {routes} from "../../routes/routes";
 import {useNavigate} from "react-router-dom";
+import {DefaultEventsMap} from "socket.io/dist/typed-events";
+
+type userInfoType = {
+    gameId: number,
+    userMove?: string
+    players: UserType[]
+}
+
+type UserType = {
+    name: string,
+    id: string
+}
+
 
 const TikTakToe = () => {
     const userName = useAppSelector(selectorNameUser)
@@ -14,6 +27,8 @@ const TikTakToe = () => {
     const [history, setHistory] = useState([{squares: Array(9).fill(null)}]);
     const [stepNumber, setStepNumber] = useState(0);
     const [xIsNext, setXIsNext] = useState(true);
+    const [ws, setWs] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
+    const [userInfo, setUserInfo] = useState<userInfoType | null>(null)
 
     const current = history[stepNumber];
     const winner = calculateWinner(current.squares);
@@ -31,11 +46,7 @@ const TikTakToe = () => {
         ];
         for (let i = 0; i < lines.length; i++) {
             const [a, b, c] = lines[i];
-            if (
-                squares[a] &&
-                squares[a] === squares[b] &&
-                squares[a] === squares[c]
-            ) {
+            if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
                 return squares[a];
             }
         }
@@ -43,15 +54,34 @@ const TikTakToe = () => {
     }
 
     const handleClick = (i: number) => {
-        const newHistory = history.slice(0, stepNumber + 1);
-        const currentSquares = newHistory[newHistory.length - 1].squares.slice();
-        if (winner || currentSquares[i]) {
-            return;
+        if (ws && userInfo && userInfo.userMove === userName) {
+            console.log(1)
+            const newHistory = history.slice(0, stepNumber + 1);
+            // console.log("newHistory: ", newHistory)
+            const currentSquares = newHistory[newHistory.length - 1].squares.slice();
+            // console.log("currentSquares: ", currentSquares)
+
+            ///нужно отправить данные по полю
+
+
+            const data = {
+                gameId: 1,
+                // playerName: userInfo.players.,
+                board: history.slice(stepNumber, stepNumber + 1)
+            }
+            ws.emit('make-move', data)
+            console.log(data)
+            // ws.emit('make-move', data)
+
+
+            if (winner || currentSquares[i]) {
+                return;
+            }
+            currentSquares[i] = xIsNext ? "X" : "O";
+            setHistory(newHistory.concat([{squares: currentSquares}]));
+            setStepNumber(newHistory.length);
+            setXIsNext(!xIsNext);
         }
-        currentSquares[i] = xIsNext ? "X" : "O";
-        setHistory(newHistory.concat([{squares: currentSquares}]));
-        setStepNumber(newHistory.length);
-        setXIsNext(!xIsNext);
     };
 
     let status;
@@ -66,36 +96,59 @@ const TikTakToe = () => {
 
     useEffect(() => {
         const socket = io('http://localhost:8080');
+        setWs(socket);
 
-        socket.on('connect', () => {
-            console.log('Connected to server');
-            if(userName){
-                socket.emit('set-name', userName)
-            }
-        });
-
-        socket.on('message', (data: any) => {
-            console.log('Message received from server:', data);
-        });
-
-        socket.on('disconnect', () => {
-            console.log('Disconnected from server');
-        });
 
         return () => {
             socket.disconnect();
         };
-    }, [userName]);
+    }, [])
+
+
+    useEffect(() => {
+        if (ws) {
+            ws.on('connect', () => {
+                console.log('Connected to server');
+                if (userName) {
+                    ws.emit('set-name', userName)
+                }
+            });
+
+            ws.on('message', (data: any) => {
+                console.log('Message received from server:', data);
+            });
+
+            ws.on('disconnect', () => {
+                console.log('Disconnected from server');
+            });
+            ws.on('join-game-success', (data: any) => {
+                setUserInfo(data)
+                console.log('eeeeeeee ', data);
+            });
+
+            ws.on('join-game-failed', (data: any) => {
+                console.log('failed=( ', data);
+            });
+
+            ws.on('start-game', (data: any) => {
+                console.log('game start!!! ', data);
+                setUserInfo(data)
+            });
+
+            ws.on('make-move', (data: any) => {
+                console.log('Opponent Move ', data);
+            });
+        }
+    }, [ws, userName, history]);
 
 
     useEffect(() => {
         if (!userName) navigate(routes.login)
     }, [userName, navigate])
 
-
     return (
         <div className={s.tikTakToeContainer}>
-            <Board squares={current.squares} onClick={handleClick} status={status}/>
+            <Board squares={current.squares} onClick={handleClick} status={status} ws={ws} userName={userName}/>
         </div>
     );
 };
