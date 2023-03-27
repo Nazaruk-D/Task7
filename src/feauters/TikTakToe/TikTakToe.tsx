@@ -1,7 +1,7 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import s from "./TikTakToe.module.scss"
 import Board from "./Board/Board";
-
+import io from 'socket.io-client';
 
 const TikTakToe = () => {
     const [history, setHistory] = useState([{squares: Array(9).fill(null)}]);
@@ -55,6 +55,29 @@ const TikTakToe = () => {
     } else {
         status = `Next player: ${xIsNext ? "X" : "O"}`;
     }
+
+
+    useEffect(() => {
+        const socket = io('http://localhost:8080');
+
+        socket.on('connect', () => {
+            console.log('Connected to server');
+            socket.emit('message', 'Hello, server!');
+        });
+
+        socket.on('message', (data: any) => {
+            console.log('Message received from server:', data);
+        });
+
+        socket.on('disconnect', () => {
+            console.log('Disconnected from server');
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
+
 
     return (
         <div className={s.tikTakToeContainer}>
