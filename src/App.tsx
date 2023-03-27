@@ -5,6 +5,7 @@ import TikTakToe from "./feauters/TikTakToe/TikTakToe";
 function App() {
     return (
         <div className="App">
+            test
             <TikTakToe/>
         </div>
     );
