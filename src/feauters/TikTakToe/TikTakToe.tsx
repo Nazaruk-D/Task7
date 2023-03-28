@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {ChangeEvent, useEffect, useState} from "react";
 import s from "./TikTakToe.module.scss"
 import Board from "./Board/Board";
 import io, {Socket} from 'socket.io-client';
@@ -9,7 +9,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
 import {useModal} from "../../common/component/SendFormModal/useModal";
 import SettingsGame from "../../common/component/SendFormModal/SettingsGame/SettingsGame";
-import { FiSettings } from "react-icons/fi";
+import {FiSettings} from "react-icons/fi";
 import {BackToMainMenu} from "../../common/component/BackToMainMenu/BackToMainMenu";
 import Settings from "../../common/component/Settings/Settings";
 
@@ -36,18 +36,11 @@ const TikTakToe = () => {
     const [ws, setWs] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
     const [userInfo, setUserInfo] = useState<userInfoType | null>(null)
     const [gameStatus, setGameStatus] = useState("")
+    const [newGame, setNewGame] = useState(false)
 
     const current = history[stepNumber];
 
-
-
     const {settingsGame, toggleSettingsGame} = useModal()
-
-    // let current
-    // if (userInfo) {
-    //     current = userInfo.board;
-    // } current = history[stepNumber]
-
 
 
     const winner = calculateWinner(current.squares);
@@ -83,7 +76,7 @@ const TikTakToe = () => {
 
             currentSquares[i] = xIsNext ? "X" : "O";
             setHistory(newHistory.concat([{squares: currentSquares}]));
-            setStepNumber(newHistory.length);
+            // setStepNumber(newHistory.length);
             setXIsNext(!xIsNext);
             const data = {
                 gameId: userInfo.gameId,
@@ -91,29 +84,33 @@ const TikTakToe = () => {
                 board: currentSquares
             }
             ws.emit('make-move', data)
-            console.log(data)
         }
     };
-
-    let status;
-    if (winner) {
-        status = `Winner: ${winner}`;
-    } else if (stepNumber === 9) {
-        status = "Draw";
-    } else {
-        status = `Next player: ${xIsNext ? "X" : "O"}`;
-    }
-
 
     useEffect(() => {
         const socket = io('http://localhost:8080');
         setWs(socket);
-
-
         return () => {
             socket.disconnect();
         };
     }, [])
+
+
+    if (ws && userInfo) {
+        if (winner) {
+            const data = {
+                info: `Winner: ${userInfo.userMove}`,
+                gameId: userInfo.gameId
+            };
+            ws.emit('game-over', data)
+        } else if (stepNumber === 9) {
+            const data = {
+                info: `Draw`,
+                gameId: userInfo.gameId
+            };
+            ws.emit('game-over', data)
+        }
+    }
 
 
     useEffect(() => {
@@ -166,6 +163,11 @@ const TikTakToe = () => {
                     }
                 }
             });
+
+            ws.on('game-over', (data: any) => {
+                setGameStatus(data.info)
+                setNewGame(true)
+            })
         }
     }, [ws, userName, history]);
 
@@ -174,13 +176,52 @@ const TikTakToe = () => {
         if (!userName) navigate(routes.login)
     }, [userName, navigate])
 
+
+    const onClickNewGameHandler = () => {
+        setHistory([{squares: Array(9).fill(null)}])
+        setStepNumber(0)
+        setUserInfo(null)
+        setNewGame(false)
+        onClickHandler()
+    }
+
+    const [gameId, setGameId] = useState<number | undefined>(undefined)
+
+    const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.currentTarget.value) {
+            setGameId(Number(e.currentTarget.value))
+        }
+    }
+
+    const onClickHandler = () => {
+        if (ws && userName) {
+            if (gameId) {
+                const data = {
+                    gameId,
+                    playerName: userName
+                };
+                ws.emit('join-game', data)
+            } else {
+                const data = {
+                    gameId: "new room",
+                    playerName: userName
+                };
+                ws.emit('join-game', data)
+            }
+        }
+    }
+
+
     return (
         <div className={s.tikTakToeContainer}>
             <BackToMainMenu/>
             <Settings onClick={toggleSettingsGame}/>
-            <Board squares={current.squares} onClick={handleClick} status={status} ws={ws} userName={userName}/>
+            <Board squares={current.squares} onClick={handleClick} ws={ws} userName={userName} userInfo={userInfo}/>
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame}/>}
             {gameStatus && <div>{gameStatus}</div>}
+            {newGame && <button onClick={onClickNewGameHandler}>new Game</button>}
+            {!userInfo && <button onClick={onClickHandler}>start game</button>}
+            <input type="text" onChange={onChangeHandler} value={gameId}/>
         </div>
     );
 };
