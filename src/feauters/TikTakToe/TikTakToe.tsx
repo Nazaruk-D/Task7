@@ -39,6 +39,7 @@ const TikTakToe = () => {
     const [userInfo, setUserInfo] = useState<userInfoType | null>(null)
     const [gameStatus, setGameStatus] = useState("")
     const [newGame, setNewGame] = useState(false)
+    const [lastPlayer, setLastPlayer] = useState<string | null>(null);
 
     const current = history[stepNumber];
 
@@ -71,7 +72,8 @@ const TikTakToe = () => {
         if (ws && userInfo && userInfo.userMove === userName) {
             const newHistory = history.slice(0, stepNumber + 1);
             const currentSquares = newHistory[newHistory.length - 1].squares.slice();
-
+            setLastPlayer(userName);
+            console.log(lastPlayer)
             if (winner || currentSquares[i]) {
                 return;
             }
@@ -90,7 +92,6 @@ const TikTakToe = () => {
 
     useEffect(() => {
         if(!ws) {
-            console.log("зашёл опять в ws!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             const socket = io('http://localhost:8080');
             setWs(socket);
         }
@@ -102,8 +103,9 @@ const TikTakToe = () => {
     useEffect(() => {
         if (ws && userInfo) {
             if (winner) {
+                console.log(history)
                 const data = {
-                    info: `Winner: ${userInfo.userMove}`,
+                    info: `Winner: ${lastPlayer}`,
                     gameId: userInfo.gameId,
                 };
                 ws.emit("game-over", data);
@@ -117,14 +119,7 @@ const TikTakToe = () => {
         }
     }, [stepNumber, userInfo, winner, ws]);
 
-    useEffect(() => {
-        console.log(stepNumber);
-    }, [stepNumber]);
-
-
-
     const handleUpdateGameState = useCallback((data: userInfoType) => {
-        console.log(123123123)
         const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId};
         setUserInfo(updatedInfo);
         if (updatedInfo.board) {
@@ -230,8 +225,6 @@ const TikTakToe = () => {
             }
         }
     }
-
-    console.log(history)
 
     return (
         <div className={s.tikTakToeContainer}>
