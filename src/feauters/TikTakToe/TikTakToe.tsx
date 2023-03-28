@@ -1,6 +1,5 @@
 import React, {ChangeEvent, useCallback, useEffect, useState} from "react";
 import s from "./TikTakToe.module.scss"
-import Board from "./Board/Board";
 import io, {Socket} from 'socket.io-client';
 import {useAppSelector} from "../../store/store";
 import {selectorNameUser} from "../../store/selector/selectorApp";
@@ -13,6 +12,7 @@ import {BackToMainMenu} from "../../common/component/BackToMainMenu/BackToMainMe
 import Settings from "../../common/component/Settings/Settings";
 import {calculateWinner} from "../../utils/calculateWinner-utils";
 import {UserInfoType} from "../../common/types/UserTypes";
+import Board from "./Board/Board";
 
 
 const TikTakToe = () => {

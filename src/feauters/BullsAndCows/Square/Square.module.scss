@@ -1,0 +1,13 @@
+@import "../../../common/styles/mixin";
+
+.square {
+  @include flex(column, center, center, nowrap);
+  width: 150px;
+  height: 90%;
+  background-color: rgba(255, 206, 32, 0.96);
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(192, 149, 11, 0.96);
+  }
+}
