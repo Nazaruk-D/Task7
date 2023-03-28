@@ -1,0 +1,9 @@
+@import './src/common/styles/mixin';
+
+.toPacksList {
+  @include flex(row, flex-start, center, wrap);
+  position: absolute;
+  left: 50px;
+  top: 50px;
+  text-decoration: none;
+}

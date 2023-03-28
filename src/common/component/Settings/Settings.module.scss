@@ -1,0 +1,10 @@
+@import './src/common/styles/mixin';
+
+.settingsContainer {
+  @include flex(row, flex-start, center, wrap);
+  position: absolute;
+  right: 50px;
+  top: 50px;
+  text-decoration: none;
+  cursor: pointer;
+}

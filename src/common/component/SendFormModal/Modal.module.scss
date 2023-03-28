@@ -1,0 +1,33 @@
+@import './src/common/styles/mixin';
+
+.modalBlock {
+  @include flex(column, center, center, nowrap);
+  height: 100%;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  position: fixed;
+  top: 0;
+  left: 0;
+  backdrop-filter: blur(3px);
+  z-index: 1000;
+
+  .modalContent {
+    @include flex(column, center, center, nowrap);
+    width: 750px;
+    min-height: 200px;
+    border-radius: 20px;
+    background-color: white;
+    position: relative;
+
+    .closeBlock::after {
+      color: black;
+      content: "✖";
+      cursor: pointer;
+      font-weight: 300;
+      font-size: 20px;
+      position: absolute;
+      right: 25px;
+      top: 20px;
+    }
+  }
+}

@@ -7,6 +7,11 @@ import {selectorNameUser} from "../../store/selector/selectorApp";
 import {router, routes} from "../../routes/routes";
 import {Link, useNavigate} from "react-router-dom";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
+import {useModal} from "../../common/component/SendFormModal/useModal";
+import SettingsGame from "../../common/component/SendFormModal/SettingsGame/SettingsGame";
+import { FiSettings } from "react-icons/fi";
+import {BackToMainMenu} from "../../common/component/BackToMainMenu/BackToMainMenu";
+import Settings from "../../common/component/Settings/Settings";
 
 type userInfoType = {
     gameId: number,
@@ -30,8 +35,13 @@ const TikTakToe = () => {
     const [xIsNext, setXIsNext] = useState(true);
     const [ws, setWs] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
     const [userInfo, setUserInfo] = useState<userInfoType | null>(null)
+    const [gameStatus, setGameStatus] = useState("")
 
     const current = history[stepNumber];
+
+
+
+    const {settingsGame, toggleSettingsGame} = useModal()
 
     // let current
     // if (userInfo) {
@@ -124,33 +134,35 @@ const TikTakToe = () => {
             });
 
             ws.on('start-game', (data: any) => {
-                console.log('game start!!! ', data);
                 setUserInfo(data)
+                if (data.userMove === userName) {
+                    setGameStatus("Game start, your turn")
+                } else {
+                    setGameStatus('Game start, opponent turn')
+                }
+
             });
 
             ws.on('join-game-success', (data: any) => {
+                setGameStatus(`Successfully connected to the game, room number ${data.gameId}`)
                 setUserInfo(data)
-                console.log('eeeeeeee ', data);
             });
 
             ws.on('join-game-failed', (data: any) => {
-                console.log('failed=( ', data);
-            });
-
-
-            ws.on('make-move', (data: userInfoType) => {
-                console.log('Opponent Move ', data);
+                setGameStatus(`Join game failed, ${data.gameId}`)
             });
 
             ws.on('update-game-state', (data: userInfoType) => {
                 const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId};
                 setUserInfo(updatedInfo);
-
                 if (updatedInfo.board) {
                     setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
                     setStepNumber(prevStepNumber => prevStepNumber + 1);
-                    if(data.userMove === userName) {
+                    if (data.userMove === userName) {
                         setXIsNext(!xIsNext);
+                        setGameStatus("Your turn")
+                    } else {
+                        setGameStatus("Opponent turn")
                     }
                 }
             });
@@ -164,8 +176,11 @@ const TikTakToe = () => {
 
     return (
         <div className={s.tikTakToeContainer}>
-            <Link to={routes.mainPage}>to main menu</Link>
+            <BackToMainMenu/>
+            <Settings onClick={toggleSettingsGame}/>
             <Board squares={current.squares} onClick={handleClick} status={status} ws={ws} userName={userName}/>
+            {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame}/>}
+            {gameStatus && <div>{gameStatus}</div>}
         </div>
     );
 };

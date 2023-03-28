@@ -1,0 +1,86 @@
+@import './src/common/styles/mixin';
+
+.titleBlock {
+  @include flex(row, flex-start, center, nowrap);
+  width: 100%;
+
+  .title {
+    padding-left: 45px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+}
+
+.form {
+  width: 100%;
+
+  .inputsBlock {
+    @include flex(row, flex-start, flex-start, nowrap);
+    padding-left: 45px;
+
+
+
+    .inputContainer {
+      @include flex(column, center, flex-start, wrap);
+      width: 330px;
+      margin-bottom: 30px;
+      margin-right: 10px;
+
+
+      .label {
+        margin-bottom: 10px;
+        color: rgba(1, 1, 1, 0.7);
+      }
+
+      .error {
+        margin-top: 7px;
+        color: #bd1010;
+      }
+
+      & input, select {
+        width: 310px;
+        height: 40px;
+        padding-left: 8px;
+        border-radius: 5px;
+        border: 0;
+        color: rgba(1, 1, 1, 0.7);
+        background-color: rgba(0, 0, 0, 0.05);
+
+        &:focus {
+          outline: 1px solid rgba(0, 0, 0, 0.2);
+        }
+      }
+
+      & select {
+        width: 318px;
+      }
+    }
+  }
+}
+
+
+.buttonBlock {
+  width: 100%;
+  padding-left: 45px;
+
+  .submitButton {
+    width: 200px;
+    height: 40px;
+    border: 0;
+    border-radius: 4px;
+    background-color: rgba(22, 63, 246, 0.85);
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    margin-bottom: 30px;
+
+    &:hover {
+      background-color: rgba(8, 41, 178, 0.85);
+    }
+
+    &:disabled {
+      background-color: #9a9a9a;
+      cursor: unset;
+    }
+  }
+}

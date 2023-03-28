@@ -15,15 +15,15 @@ interface BoardProps {
 const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName}) => {
     const [gameId, setGameId] = useState<number | undefined>(undefined)
 
-    const onChangeHandler= (e: ChangeEvent<HTMLInputElement>) => {
-        if(e.currentTarget.value) {
+    const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.currentTarget.value) {
             setGameId(Number(e.currentTarget.value))
         }
     }
 
     const onClickHandler = () => {
         if (ws && userName) {
-            if(gameId) {
+            if (gameId) {
                 const data = {
                     gameId,
                     playerName: userName
