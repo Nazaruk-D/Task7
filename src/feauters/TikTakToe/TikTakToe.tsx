@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useEffect, useState} from "react";
+import React, {ChangeEvent, useCallback, useEffect, useState} from "react";
 import s from "./TikTakToe.module.scss"
 import Board from "./Board/Board";
 import io, {Socket} from 'socket.io-client';
@@ -12,6 +12,8 @@ import SettingsGame from "../../common/component/SendFormModal/SettingsGame/Sett
 import {FiSettings} from "react-icons/fi";
 import {BackToMainMenu} from "../../common/component/BackToMainMenu/BackToMainMenu";
 import Settings from "../../common/component/Settings/Settings";
+import { isEqual } from 'lodash-es';
+
 
 type userInfoType = {
     gameId: number,
@@ -73,9 +75,8 @@ const TikTakToe = () => {
             if (winner || currentSquares[i]) {
                 return;
             }
-
             currentSquares[i] = xIsNext ? "X" : "O";
-            setHistory(newHistory.concat([{squares: currentSquares}]));
+            // setHistory(newHistory.concat([{squares: currentSquares}]));
             // setStepNumber(newHistory.length);
             setXIsNext(!xIsNext);
             const data = {
@@ -88,30 +89,64 @@ const TikTakToe = () => {
     };
 
     useEffect(() => {
-        const socket = io('http://localhost:8080');
-        setWs(socket);
+        if(!ws) {
+            console.log("зашёл опять в ws!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            const socket = io('http://localhost:8080');
+            setWs(socket);
+        }
         return () => {
-            socket.disconnect();
+            ws?.disconnect();
         };
     }, [])
 
-
-    if (ws && userInfo) {
-        if (winner) {
-            const data = {
-                info: `Winner: ${userInfo.userMove}`,
-                gameId: userInfo.gameId
-            };
-            ws.emit('game-over', data)
-        } else if (stepNumber === 9) {
-            const data = {
-                info: `Draw`,
-                gameId: userInfo.gameId
-            };
-            ws.emit('game-over', data)
+    useEffect(() => {
+        if (ws && userInfo) {
+            if (winner) {
+                const data = {
+                    info: `Winner: ${userInfo.userMove}`,
+                    gameId: userInfo.gameId,
+                };
+                ws.emit("game-over", data);
+            } else if (stepNumber === 9) {
+                const data = {
+                    info: `Draw`,
+                    gameId: userInfo.gameId,
+                };
+                ws.emit("game-over", data);
+            }
         }
-    }
+    }, [stepNumber, userInfo, winner, ws]);
 
+    useEffect(() => {
+        console.log(stepNumber);
+    }, [stepNumber]);
+
+
+
+    const handleUpdateGameState = useCallback((data: userInfoType) => {
+        console.log(123123123)
+        const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId};
+        setUserInfo(updatedInfo);
+        if (updatedInfo.board) {
+            setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
+            setStepNumber(prevStepNumber => prevStepNumber + 1);
+            if (data.userMove === userName) {
+                setXIsNext(!xIsNext);
+                setGameStatus("Your turn")
+            } else {
+                setGameStatus("Opponent turn")
+            }
+        }
+    }, [userInfo, setUserInfo, setHistory, setStepNumber, userName, xIsNext]);
+
+    useEffect(() => {
+        if(ws){
+            ws.on('update-game-state', handleUpdateGameState);
+            return () => {
+                ws.off('update-game-state', handleUpdateGameState);
+            }
+        }
+    }, [handleUpdateGameState, ws]);
 
     useEffect(() => {
         if (ws) {
@@ -147,21 +182,6 @@ const TikTakToe = () => {
 
             ws.on('join-game-failed', (data: any) => {
                 setGameStatus(`Join game failed, ${data.gameId}`)
-            });
-
-            ws.on('update-game-state', (data: userInfoType) => {
-                const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId};
-                setUserInfo(updatedInfo);
-                if (updatedInfo.board) {
-                    setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
-                    setStepNumber(prevStepNumber => prevStepNumber + 1);
-                    if (data.userMove === userName) {
-                        setXIsNext(!xIsNext);
-                        setGameStatus("Your turn")
-                    } else {
-                        setGameStatus("Opponent turn")
-                    }
-                }
             });
 
             ws.on('game-over', (data: any) => {
@@ -211,6 +231,7 @@ const TikTakToe = () => {
         }
     }
 
+    console.log(history)
 
     return (
         <div className={s.tikTakToeContainer}>
