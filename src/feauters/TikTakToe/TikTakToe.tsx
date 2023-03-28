@@ -10,8 +10,9 @@ import {DefaultEventsMap} from "socket.io/dist/typed-events";
 
 type userInfoType = {
     gameId: number,
-    userMove?: string
-    players: UserType[]
+    userMove?: string,
+    board?: any
+    players?: UserType[]
 }
 
 type UserType = {
@@ -31,6 +32,14 @@ const TikTakToe = () => {
     const [userInfo, setUserInfo] = useState<userInfoType | null>(null)
 
     const current = history[stepNumber];
+
+    // let current
+    // if (userInfo) {
+    //     current = userInfo.board;
+    // } current = history[stepNumber]
+
+
+
     const winner = calculateWinner(current.squares);
 
     function calculateWinner(squares: (string | null)[]): string | null {
@@ -55,32 +64,24 @@ const TikTakToe = () => {
 
     const handleClick = (i: number) => {
         if (ws && userInfo && userInfo.userMove === userName) {
-            console.log(1)
             const newHistory = history.slice(0, stepNumber + 1);
-            // console.log("newHistory: ", newHistory)
             const currentSquares = newHistory[newHistory.length - 1].squares.slice();
-            // console.log("currentSquares: ", currentSquares)
-
-            ///нужно отправить данные по полю
-
-
-            const data = {
-                gameId: 1,
-                // playerName: userInfo.players.,
-                board: history.slice(stepNumber, stepNumber + 1)
-            }
-            ws.emit('make-move', data)
-            console.log(data)
-            // ws.emit('make-move', data)
-
 
             if (winner || currentSquares[i]) {
                 return;
             }
+
             currentSquares[i] = xIsNext ? "X" : "O";
             setHistory(newHistory.concat([{squares: currentSquares}]));
             setStepNumber(newHistory.length);
             setXIsNext(!xIsNext);
+            const data = {
+                gameId: userInfo.gameId,
+                userMove: userName,
+                board: currentSquares
+            }
+            ws.emit('make-move', data)
+            console.log(data)
         }
     };
 
@@ -121,6 +122,12 @@ const TikTakToe = () => {
             ws.on('disconnect', () => {
                 console.log('Disconnected from server');
             });
+
+            ws.on('start-game', (data: any) => {
+                console.log('game start!!! ', data);
+                setUserInfo(data)
+            });
+
             ws.on('join-game-success', (data: any) => {
                 setUserInfo(data)
                 console.log('eeeeeeee ', data);
@@ -130,13 +137,22 @@ const TikTakToe = () => {
                 console.log('failed=( ', data);
             });
 
-            ws.on('start-game', (data: any) => {
-                console.log('game start!!! ', data);
-                setUserInfo(data)
+
+            ws.on('make-move', (data: userInfoType) => {
+                console.log('Opponent Move ', data);
             });
 
-            ws.on('make-move', (data: any) => {
-                console.log('Opponent Move ', data);
+            ws.on('update-game-state', (data: userInfoType) => {
+                const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId};
+                setUserInfo(updatedInfo);
+
+                if (updatedInfo.board) {
+                    setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
+                    setStepNumber(prevStepNumber => prevStepNumber + 1);
+                    if(data.userMove === userName) {
+                        setXIsNext(!xIsNext);
+                    }
+                }
             });
         }
     }, [ws, userName, history]);
