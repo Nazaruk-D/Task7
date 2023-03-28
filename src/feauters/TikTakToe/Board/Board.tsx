@@ -31,7 +31,7 @@ const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName}) =
                 ws.emit('join-game', data)
             } else {
                 const data = {
-                    gameId: 1,
+                    gameId: "new room",
                     playerName: userName
                 };
                 ws.emit('join-game', data)

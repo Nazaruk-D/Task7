@@ -4,8 +4,8 @@ import Board from "./Board/Board";
 import io, {Socket} from 'socket.io-client';
 import {useAppSelector} from "../../store/store";
 import {selectorNameUser} from "../../store/selector/selectorApp";
-import {routes} from "../../routes/routes";
-import {useNavigate} from "react-router-dom";
+import {router, routes} from "../../routes/routes";
+import {Link, useNavigate} from "react-router-dom";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
 
 type userInfoType = {
@@ -164,6 +164,7 @@ const TikTakToe = () => {
 
     return (
         <div className={s.tikTakToeContainer}>
+            <Link to={routes.mainPage}>to main menu</Link>
             <Board squares={current.squares} onClick={handleClick} status={status} ws={ws} userName={userName}/>
         </div>
     );

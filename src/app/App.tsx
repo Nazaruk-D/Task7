@@ -17,9 +17,6 @@ function App() {
 
     const userName = useAppSelector(selectorNameUser)
 
-
-
-
     return (
         <div className={s.appContainer}>
             <RouterProvider router={router}/>
