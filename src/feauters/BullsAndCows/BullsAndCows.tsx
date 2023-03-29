@@ -14,12 +14,24 @@ import {useModal} from "../../common/component/SendFormModal/useModal";
 import {calculateWinner} from "../../utils/calculateWinner-utils";
 import Board from "./Board/Board";
 
+type HistoryItemType = {
+    squares: number[] | null[];
+    userMove: string;
+    bulls: number | null;
+    cows: number | null;
+}
+
 const BullsAndCows = () => {
 
     const userName = useAppSelector(selectorNameUser)
     const navigate = useNavigate()
 
-    const [history, setHistory] = useState([{squares: Array(4).fill(null)}]);
+    const [history, setHistory] = useState<HistoryItemType[]>([{
+        squares: Array(4).fill(null),
+        userMove: "",
+        bulls: null,
+        cows: null
+    }]);
     const [stepNumber, setStepNumber] = useState(0);
     const [xIsNext, setXIsNext] = useState(true);
     const [myMove, setMyMove] = useState(false);
@@ -34,21 +46,18 @@ const BullsAndCows = () => {
     const [preparation, setPreparation] = useState(false)
     const [yourNumber, setYourNumber] = useState<number[] | null>(null)
     const {settingsGame, toggleSettingsGame} = useModal()
+    // const [myMoves, setMyMoves] = useState<number[][]>([])
+    // const [opponentMoves, setOpponentMoves] = useState<number[][]>([])
 
+
+    const myMoves = history.filter(move => move.userMove === userName);
+    const opponentMoves = history.filter(move => move.userMove !== userName);
+    console.log(history)
     const current = history[stepNumber];
 
 
-    // useEffect(() => {
-    //     const countResult = () => {
-    //
-    //     }
-    //     setResult()
-    // }, [history])
-
-    const winner = calculateWinner(current.squares);
-
     const onClickNewGameHandler = () => {
-        setHistory([{squares: Array(4).fill(null)}])
+        setHistory([{squares: Array(4).fill(null), userMove: "", bulls: null, cows: null}])
         setStepNumber(0)
         setUserInfo(null)
         setNewGame(false)
@@ -63,21 +72,20 @@ const BullsAndCows = () => {
 
 
     const handleClick = (digits: number[]) => {
-        if (ws && userInfo && userInfo.userMove === userName) {
+        // console.log("POPAL V HANDLE")
+        // console.log(userInfo)
+        // console.log(userInfo!.userMove)
+        // console.log(userName)
+        if (ws && userInfo) {
             const newHistory = history.slice(0, stepNumber + 1);
             setLastPlayer(userName);
-            // if (winner || currentSquares[i]) {
-            if (winner) {
-                return;
-            }
-            // currentSquares[i] = xIsNext ? "X" : "O";
-            // console.log("currentSquares: ", currentSquares)
             const data = {
                 gameId: userInfo.gameId,
                 userMove: userName,
                 gameName: userInfo.gameName,
                 board: digits
             }
+            console.log("MAKEMOVE:", data)
             ws.emit('make-move', data)
         }
     };
@@ -91,22 +99,25 @@ const BullsAndCows = () => {
             gameName: data.gameName
         };
         const {bulls, cows} = data
-        console.log("bulls: ", bulls)
-        console.log("cows: ", cows)
-
         setUserInfo(updatedInfo);
-        if (updatedInfo.board) {
-            setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
+        if (updatedInfo) {
+            console.log("userMove: ", data.userMove)
+            const newInfo: HistoryItemType = {
+                squares: updatedInfo.board,
+                userMove: data.userMove || "",
+                bulls: bulls || null,
+                cows: cows || null
+            }
+            setHistory(prevHistory => [...prevHistory, newInfo]);
             setStepNumber(prevStepNumber => prevStepNumber + 1);
-            console.log("history: ", history)
             if (data.userMove === userName) {
                 setResult(updatedInfo.board)
                 setXIsNext(!xIsNext);
-                setMyMove(true)
+                setMyMove(false)
                 setGameStatus("Your try")
             } else {
                 setResult2(updatedInfo.board)
-                setMyMove(false)
+                setMyMove(true)
                 setGameStatus('Opponent try')
             }
         }
@@ -123,20 +134,7 @@ const BullsAndCows = () => {
     }, [])
 
     useEffect(() => {
-        if (ws && userInfo && winner) {
-            // if (winner) {
-            const data = {
-                info: `Winner: ${lastPlayer}`,
-                gameName: userInfo.gameName,
-                gameId: userInfo.gameId,
-            };
-            ws.emit("game-over", data);
-        }
-    }, [stepNumber, userInfo, winner, ws]);
-
-    useEffect(() => {
         if (ws) {
-            console.log("popal suda!!!!")
             ws.on('check-number-result', handleUpdateGameState);
             return () => {
                 ws.off('check-number-result', handleUpdateGameState);
@@ -280,10 +278,14 @@ const BullsAndCows = () => {
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame}/>}
             {newGame && <button type="submit" onClick={onClickNewGameHandler}>new Game</button>}
             {!userInfo && <button type="submit" onClick={startGameHandler}>start game</button>}
-            {result && <div>{history.map((h, i) => myMove
-                ? <div key={i}> My move: {h.squares}</div>
-                : <div key={i}> Your move: {h.squares}</div>
-            )}</div>}
+            {myMoves.length > 0 && <div>
+                My moves!!!
+                <div>{myMoves.map(m => <div>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls}, cows: {m.cows === null ? 0 : m.cows}</div>)}</div>
+            </div>}
+            {opponentMoves.length > 1 && <div>
+                Opponents moves!
+                <div>{opponentMoves.map(m => <div>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls}, cows: {m.cows === null ? 0 : m.cows}</div>)}</div>
+            </div>}
         </div>
     );
 };

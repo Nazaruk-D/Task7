@@ -5,7 +5,7 @@ import {DefaultEventsMap} from "socket.io/dist/typed-events";
 import {useFormik} from "formik";
 
 interface BoardProps {
-    squares: (string | null)[];
+    squares: (number | null)[];
     onClick: (digits: number[]) => void;
     status?: string
     userInfo: any
