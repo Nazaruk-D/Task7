@@ -5,6 +5,8 @@ export type UserInfoType = {
     userMove?: string
     board?: any
     players?: UserType[]
+    bulls?: string
+    cows?: string
 }
 
 type UserType = {

@@ -8,12 +8,14 @@ interface BoardProps {
     squares: (string | null)[];
     onClick: (digits: number[]) => void;
     status?: string
-    ws: Socket<DefaultEventsMap, DefaultEventsMap> | null
-    userName: string
     userInfo: any
+    myMove: boolean
+    newGame: any,
+    preparation: any
+    preparationGameHandler: (digits: number[]) => void
 }
 
-const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, userInfo}) => {
+const Board: React.FC<BoardProps> = ({squares, preparationGameHandler, onClick, status, userInfo, myMove, newGame, preparation}) => {
 
     const formik = useFormik({
         initialValues: {
@@ -42,7 +44,11 @@ const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, us
         },
         onSubmit: values => {
             const digits = [+values.digit1, +values.digit2, +values.digit3, +values.digit4]
-            onClick(digits)
+            if (preparation) {
+                preparationGameHandler(digits)
+            } else {
+                onClick(digits)
+            }
 
             // const data = {
             //     gameId: userInfo.gameId,
@@ -55,7 +61,7 @@ const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, us
             //     // ws.emit('make-move', data)
             // }
             // console.log(values)
-            // formik.resetForm()
+            formik.resetForm()
         },
     })
 
@@ -122,6 +128,8 @@ const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, us
             {formik.touched.digit1 && formik.touched.digit2 && formik.touched.digit3 && formik.touched.digit4 && formik.errors.general &&
                 <div style={{color: "red"}}>{formik.errors.general}</div>}
             {/*<button type="submit">Отправить</button>*/}
+            {preparation && <button type="submit">Submit your number</button>}
+            {myMove && <button type="submit">send numbers</button>}
         </form>
     );
 };

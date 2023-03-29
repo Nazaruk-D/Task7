@@ -89,6 +89,7 @@ const TikTakToe = () => {
     };
 
     const handleUpdateGameState = useCallback((data: UserInfoType) => {
+        console.log(data)
         const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId, gameName: data.gameName};
         setUserInfo(updatedInfo);
         if (updatedInfo.board) {

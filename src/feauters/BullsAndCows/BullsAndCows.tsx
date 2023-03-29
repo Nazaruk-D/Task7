@@ -22,7 +22,7 @@ const BullsAndCows = () => {
     const [history, setHistory] = useState([{squares: Array(4).fill(null)}]);
     const [stepNumber, setStepNumber] = useState(0);
     const [xIsNext, setXIsNext] = useState(true);
-    const [myMove, setMyMove] = useState(true);
+    const [myMove, setMyMove] = useState(false);
     const [ws, setWs] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
     const [gameStatus, setGameStatus] = useState("You can select a room number in the settings to play with a friend.")
@@ -32,6 +32,7 @@ const BullsAndCows = () => {
     const [result, setResult] = useState("")
     const [result2, setResult2] = useState("")
     const [preparation, setPreparation] = useState(false)
+    const [yourNumber, setYourNumber] = useState<number[] | null>(null)
     const {settingsGame, toggleSettingsGame} = useModal()
 
     const current = history[stepNumber];
@@ -64,8 +65,6 @@ const BullsAndCows = () => {
     const handleClick = (digits: number[]) => {
         if (ws && userInfo && userInfo.userMove === userName) {
             const newHistory = history.slice(0, stepNumber + 1);
-            console.log("history: ", history)
-            console.log("newHistory: ", newHistory)
             setLastPlayer(userName);
             // if (winner || currentSquares[i]) {
             if (winner) {
@@ -91,19 +90,24 @@ const BullsAndCows = () => {
             gameId: data.gameId,
             gameName: data.gameName
         };
+        const {bulls, cows} = data
+        console.log("bulls: ", bulls)
+        console.log("cows: ", cows)
+
         setUserInfo(updatedInfo);
         if (updatedInfo.board) {
             setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
             setStepNumber(prevStepNumber => prevStepNumber + 1);
+            console.log("history: ", history)
             if (data.userMove === userName) {
                 setResult(updatedInfo.board)
                 setXIsNext(!xIsNext);
                 setMyMove(true)
-                setGameStatus("Your turn")
+                setGameStatus("Your try")
             } else {
                 setResult2(updatedInfo.board)
                 setMyMove(false)
-                setGameStatus("Opponent turn")
+                setGameStatus('Opponent try')
             }
         }
     }, [userInfo, setUserInfo, setHistory, setStepNumber, userName]);
@@ -132,9 +136,10 @@ const BullsAndCows = () => {
 
     useEffect(() => {
         if (ws) {
-            ws.on('update-game-state', handleUpdateGameState);
+            console.log("popal suda!!!!")
+            ws.on('check-number-result', handleUpdateGameState);
             return () => {
-                ws.off('update-game-state', handleUpdateGameState);
+                ws.off('check-number-result', handleUpdateGameState);
             }
         }
     }, [handleUpdateGameState, ws]);
@@ -162,6 +167,7 @@ const BullsAndCows = () => {
                 setUserInfo(data)
                 // if (data.userMove === userName) {
                 // setMyMove(true)
+
                 setGameStatus("Game start, Choose a number according to the rules of the game")
                 // } else {
                 // setMyMove(false)
@@ -175,6 +181,7 @@ const BullsAndCows = () => {
                 // if (data.userMove === userName) {
                 //     console.log("Preparing I")
                 // setMyMove(true)
+                setMyMove(true)
                 setGameStatus("Choose your number")
                 // } else {
                 //     console.log("Preparing Yeee")
@@ -194,6 +201,10 @@ const BullsAndCows = () => {
                     setGameStatus('Opponent try')
                 }
             });
+
+            // ws.on('check-number-result', (data: any) => {
+            //     console.log('check-number-result ', data)
+            // });
 
             ws.on('join-game-success', (data: any) => {
                 setGameStatus(`Successfully connected to the game, room number ${data.gameId}`)
@@ -216,17 +227,19 @@ const BullsAndCows = () => {
         if (!userName) navigate(routes.login)
     }, [userName, navigate])
 
-    const preparationGameHandler = () => {
-        if (ws && userInfo && userName) {
+    const preparationGameHandler = (yourNumber: number[]) => {
+        if (ws && userInfo && userName && yourNumber) {
             const data = {
                 gameName: userInfo.gameName,
                 gameId: userInfo.gameId,
                 userMove: userInfo.userMove,
                 playerName: userName,
-                number: [1, 2, 3, 4]
+                number: yourNumber
             };
             ws.emit('game-preparation', data)
             setPreparation(false)
+            setYourNumber(yourNumber)
+            console.log("setYourNumber: ", yourNumber)
         }
     }
 
@@ -254,25 +267,23 @@ const BullsAndCows = () => {
         <div className={s.bullsAndCowsContainer}>
             <BackToMainMenu/>
             <Settings onClick={toggleSettingsGame}/>
-            <Board squares={current.squares} onClick={handleClick} ws={ws} userName={userName} userInfo={userInfo}/>
+            {yourNumber && <div>Your number: {yourNumber}</div>}
+            <Board squares={current.squares}
+                   onClick={handleClick}
+                   userInfo={userInfo}
+                   myMove={myMove}
+                   newGame={newGame}
+                   preparation={preparation}
+                   preparationGameHandler={preparationGameHandler}
+            />
             {gameStatus && <div>{gameStatus}</div>}
-            {newGame && <button onClick={onClickNewGameHandler}>new Game</button>}
-            {/*{preparation*/}
-            {/*    ? <button onClick={preparationGameHandler}>Preparation</button>*/}
-            {/*    : <button onClick={startGameHandler}>start game</button>*/}
-            {/*}*/}
-            {preparation && <button onClick={preparationGameHandler}>Preparation</button>}
-            {!userInfo && <button onClick={startGameHandler}>start game</button>}
-            {gameStatus === "Your try" && <button onClick={() => console.log("Yeap")}>send numbers</button>}
-
-            {/*{!userInfo && <button onClick={startGameHandler}>start game</button>}*/}
-            {/*<input type="text" onChange={onChangeHandler} value={gameId}/>*/}
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame}/>}
+            {newGame && <button type="submit" onClick={onClickNewGameHandler}>new Game</button>}
+            {!userInfo && <button type="submit" onClick={startGameHandler}>start game</button>}
             {result && <div>{history.map((h, i) => myMove
                 ? <div key={i}> My move: {h.squares}</div>
                 : <div key={i}> Your move: {h.squares}</div>
             )}</div>}
-            {/*{result2 && <div>{history.map((h, i) => <div key={i}> Move: {h.squares}</div>)}</div>}*/}
         </div>
     );
 };
