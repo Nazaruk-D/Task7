@@ -53,12 +53,14 @@ const TikTakToe = () => {
             if (gameId) {
                 const data = {
                     gameId,
+                    gameName: "tikTakToe",
                     playerName: userName
                 };
                 ws.emit('join-game', data)
             } else {
                 const data = {
                     gameId: "new room",
+                    gameName: "tikTakToe",
                     playerName: userName
                 };
                 ws.emit('join-game', data)
@@ -78,6 +80,7 @@ const TikTakToe = () => {
             setXIsNext(!xIsNext);
             const data = {
                 gameId: userInfo.gameId,
+                gameName: userInfo.gameName,
                 userMove: userName,
                 board: currentSquares
             }
@@ -86,7 +89,7 @@ const TikTakToe = () => {
     };
 
     const handleUpdateGameState = useCallback((data: UserInfoType) => {
-        const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId};
+        const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId, gameName: data.gameName};
         setUserInfo(updatedInfo);
         if (updatedInfo.board) {
             setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
@@ -115,12 +118,14 @@ const TikTakToe = () => {
             if (winner) {
                 const data = {
                     info: `Winner: ${lastPlayer}`,
+                    gameName: userInfo.gameName,
                     gameId: userInfo.gameId,
                 };
                 ws.emit("game-over", data);
             } else if (stepNumber === 9) {
                 const data = {
                     info: `Draw`,
+                    gameName: "tikTakToe",
                     gameId: userInfo.gameId,
                 };
                 ws.emit("game-over", data);
@@ -178,7 +183,6 @@ const TikTakToe = () => {
             })
         }
     }, [ws, userName, history]);
-
 
     useEffect(() => {
         if (!userName) navigate(routes.login)

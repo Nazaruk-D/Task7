@@ -6,7 +6,7 @@ import {useFormik} from "formik";
 
 interface BoardProps {
     squares: (string | null)[];
-    onClick: (i: number) => void;
+    onClick: (digits: number[]) => void;
     status?: string
     ws: Socket<DefaultEventsMap, DefaultEventsMap> | null
     userName: string
@@ -21,6 +21,7 @@ const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, us
             digit2: "",
             digit3: "",
             digit4: "",
+            general: ""
         },
         validate: (values) => {
             const errors: { general?: string } = {}
@@ -40,8 +41,21 @@ const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, us
             return errors
         },
         onSubmit: values => {
-            console.log(values)
-            formik.resetForm()
+            const digits = [+values.digit1, +values.digit2, +values.digit3, +values.digit4]
+            onClick(digits)
+
+            // const data = {
+            //     gameId: userInfo.gameId,
+            //     gameName: userInfo.gameName,
+            //     userMove: userName,
+            //     board: newArr
+            // }
+            // if(ws){
+            //     console.log(data)
+            //     // ws.emit('make-move', data)
+            // }
+            // console.log(values)
+            // formik.resetForm()
         },
     })
 
@@ -105,7 +119,9 @@ const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, us
                     className={s.input}
                 />
             </div>
-            <button type="submit">Отправить</button>
+            {formik.touched.digit1 && formik.touched.digit2 && formik.touched.digit3 && formik.touched.digit4 && formik.errors.general &&
+                <div style={{color: "red"}}>{formik.errors.general}</div>}
+            {/*<button type="submit">Отправить</button>*/}
         </form>
     );
 };

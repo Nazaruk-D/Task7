@@ -1,12 +1,13 @@
 
 export type UserInfoType = {
-    gameId: number,
-    userMove?: string,
+    gameId: number
+    gameName?: "tikTakToe" | "bullsAndCows"
+    userMove?: string
     board?: any
     players?: UserType[]
 }
 
 type UserType = {
-    name: string,
+    name: string
     id: string
 }
