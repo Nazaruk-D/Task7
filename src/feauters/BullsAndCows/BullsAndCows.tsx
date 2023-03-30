@@ -109,7 +109,8 @@ const BullsAndCows = () => {
 
     useEffect(() => {
         if (!ws) {
-            const socket = io('http://localhost:8080');
+            // const socket = io('http://localhost:8080');
+            const socket = io('wss://task7-9809.onrender.com');
             setWs(socket);
         }
         return () => {
