@@ -1,21 +1,17 @@
 import React from "react";
 import s from "./Board.module.scss"
-import {Socket} from "socket.io-client";
-import {DefaultEventsMap} from "socket.io/dist/typed-events";
 import {useFormik} from "formik";
 
 interface BoardProps {
-    squares: (number | null)[];
     onClick: (digits: number[]) => void;
-    status?: string
-    userInfo: any
     myMove: boolean
     newGame: any,
     preparation: any
+    yourNumber: number[] | null
     preparationGameHandler: (digits: number[]) => void
 }
 
-const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, newGame, preparation}) => {
+const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, newGame, preparation, yourNumber}) => {
 
     const formik = useFormik({
         initialValues: {
@@ -49,24 +45,13 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
             } else {
                 onClick(digits)
             }
-
-            // const data = {
-            //     gameId: userInfo.gameId,
-            //     gameName: userInfo.gameName,
-            //     userMove: userName,
-            //     board: newArr
-            // }
-            // if(ws){
-            //     console.log(data)
-            //     // ws.emit('make-move', data)
-            // }
-            // console.log(values)
             formik.resetForm()
         },
     })
 
     return (
         <form onSubmit={formik.handleSubmit} className={s.board}>
+            {/*{yourNumber && <div className={s.yourNumber}>Your number: {yourNumber}</div>}*/}
             <div className={s.boardRow}>
                 <input
                     placeholder="digit1"
@@ -127,9 +112,10 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
             </div>
             {formik.touched.digit1 && formik.touched.digit2 && formik.touched.digit3 && formik.touched.digit4 && formik.errors.general &&
                 <div style={{color: "red"}}>{formik.errors.general}</div>}
-            {/*<button type="submit">Отправить</button>*/}
-            {preparation && <button type="submit">Submit your number</button>}
-            {myMove && !newGame && <button type="submit">send numbers</button>}
+            <div className={s.buttonBlock}>
+                {preparation && <button type="submit">Submit your number</button>}
+                {myMove && !newGame && <button type="submit">send numbers</button>}
+            </div>
         </form>
     );
 };

@@ -1,20 +1,20 @@
 import React, {ChangeEvent, useCallback, useEffect, useState} from 'react';
 import s from "./BullsAndCows.module.scss"
-import {Link, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {routes} from "../../routes/routes";
 import {BackToMainMenu} from "../../common/component/BackToMainMenu/BackToMainMenu";
 import Settings from "../../common/component/Settings/Settings";
-import SettingsGame from "../../common/component/SendFormModal/SettingsGame/SettingsGame";
 import {useAppSelector} from "../../store/store";
 import {selectorNameUser} from "../../store/selector/selectorApp";
 import io, {Socket} from "socket.io-client";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
 import {UserInfoType} from "../../common/types/UserTypes";
-import {useModal} from "../../common/component/SendFormModal/useModal";
-import {calculateWinner} from "../../utils/calculateWinner-utils";
 import Board from "./Board/Board";
+import SettingsBullAndCows from "./SettingsBullAndCows/SettingsBullAndCows";
+import {useModal} from "../../common/component/SendFormModal/useModal";
+import SettingsGame from "../../common/component/SendFormModal/SettingsGame/SettingsGame";
 
-type HistoryItemType = {
+export type HistoryItemType = {
     squares: number[] | null[];
     userMove: string;
     bulls: number | null;
@@ -40,17 +40,14 @@ const BullsAndCows = () => {
     const [gameStatus, setGameStatus] = useState("You can select a room number in the settings to play with a friend.")
     const [newGame, setNewGame] = useState(false)
     const [lastPlayer, setLastPlayer] = useState<string | null>(null);
-    const [gameId, setGameId] = useState<number | "">("")
     const [result, setResult] = useState("")
     const [result2, setResult2] = useState("")
     const [preparation, setPreparation] = useState(false)
     const [yourNumber, setYourNumber] = useState<number[] | null>(null)
-    const {settingsGame, toggleSettingsGame} = useModal()
 
 
     const myMoves = history.filter(move => move.userMove === userName);
     const opponentMoves = history.filter(move => move.userMove !== userName);
-    console.log(history)
     const current = history[stepNumber];
 
 
@@ -61,12 +58,6 @@ const BullsAndCows = () => {
         setNewGame(false)
         startGameHandler()
         setYourNumber(null)
-    }
-
-    const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.currentTarget.value) {
-            setGameId(Number(e.currentTarget.value))
-        }
     }
 
 
@@ -156,29 +147,13 @@ const BullsAndCows = () => {
                 console.log("STAAART GAME DATA: ", data)
                 setPreparation(true)
                 setUserInfo(data)
-                // if (data.userMove === userName) {
-                // setMyMove(true)
-
                 setGameStatus("Game start, Choose a number according to the rules of the game")
-                // } else {
-                // setMyMove(false)
-                // setGameStatus('Game start, opponent write a number for you')
-                // }
             });
 
             ws.on('game-preparation', (data: any) => {
-                // setUserInfo(data)
                 console.log("PREPARATION: ", data)
-                // if (data.userMove === userName) {
-                //     console.log("Preparing I")
-                // setMyMove(true)
                 setMyMove(true)
                 setGameStatus("Choose your number")
-                // } else {
-                //     console.log("Preparing Yeee")
-                // setMyMove(false)
-                // setGameStatus('Game start, opponent turn')
-                // }
             });
 
             ws.on('start-game-move', (data: any) => {
@@ -209,7 +184,6 @@ const BullsAndCows = () => {
         }
     }, [ws, userName, history]);
 
-
     useEffect(() => {
         if (!userName) navigate(routes.login)
     }, [userName, navigate])
@@ -230,12 +204,12 @@ const BullsAndCows = () => {
         }
     }
 
-    const startGameHandler = () => {
+    const startGameHandler = (roomNumber?: number) => {
         if (ws && userName) {
-            if (gameId) {
+            if (roomNumber) {
                 const data = {
                     gameName: "bullsAndCows",
-                    gameId,
+                    gameId: roomNumber,
                     playerName: userName
                 };
                 ws.emit('join-game', data)
@@ -249,34 +223,34 @@ const BullsAndCows = () => {
             }
         }
     }
+    const {settingsGame, toggleSettingsGame} = useModal()
+
+    const onChangeHandler = (value: string) => {
+        if (value) {
+            startGameHandler(Number(value))
+        }
+    }
 
     return (
         <div className={s.bullsAndCowsContainer}>
             <BackToMainMenu/>
             <Settings onClick={toggleSettingsGame}/>
-            {yourNumber && <div>Your number: {yourNumber}</div>}
-            <Board squares={current.squares}
-                   onClick={handleClick}
-                   userInfo={userInfo}
+            <Board onClick={handleClick}
                    myMove={myMove}
                    newGame={newGame}
                    preparation={preparation}
+                   yourNumber={yourNumber}
                    preparationGameHandler={preparationGameHandler}
             />
-            {gameStatus && <div>{gameStatus}</div>}
-            {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame}/>}
-            {newGame && <button type="submit" onClick={onClickNewGameHandler}>new Game</button>}
-            {!userInfo && <button type="submit" onClick={startGameHandler}>start game</button>}
-            {myMoves.length > 0 && <div>
-                My moves!!!
-                <div>{myMoves.map((m, i) => <div key={i}>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls},
-                    cows: {m.cows === null ? 0 : m.cows}</div>)}</div>
-            </div>}
-            {opponentMoves.length > 1 && <div>
-                Opponents moves!
-                <div>{opponentMoves.map((m,i) => <div key={i}>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls},
-                    cows: {m.cows === null ? 0 : m.cows}</div>).slice(1, opponentMoves.length + 1)}</div>
-            </div>}
+            <SettingsBullAndCows gameStatus={gameStatus}
+                                 newGame={newGame}
+                                 myMoves={myMoves}
+                                 opponentMoves={opponentMoves}
+                                 onClickNewGameHandler={onClickNewGameHandler}
+                                 startGameHandler={startGameHandler}
+                                 userInfo={userInfo}
+            />
+            {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame} onChangeHandler={onChangeHandler}/>}
         </div>
     );
 };

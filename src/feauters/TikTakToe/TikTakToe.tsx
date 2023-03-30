@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useCallback, useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import s from "./TikTakToe.module.scss"
 import io, {Socket} from 'socket.io-client';
 import {useAppSelector} from "../../store/store";
@@ -10,9 +10,9 @@ import {useModal} from "../../common/component/SendFormModal/useModal";
 import SettingsGame from "../../common/component/SendFormModal/SettingsGame/SettingsGame";
 import {BackToMainMenu} from "../../common/component/BackToMainMenu/BackToMainMenu";
 import Settings from "../../common/component/Settings/Settings";
-import {calculateWinner} from "../../utils/calculateWinner-utils";
 import {UserInfoType} from "../../common/types/UserTypes";
 import Board from "./Board/Board";
+import SettingsTikTakToe from "./SettingsTikTakToe/SettingsTikTakToe";
 
 
 const TikTakToe = () => {
@@ -32,8 +32,6 @@ const TikTakToe = () => {
 
     const current = history[stepNumber];
 
-    const winner = calculateWinner(current.squares);
-
     const onClickNewGameHandler = () => {
         setHistory([{squares: Array(9).fill(null)}])
         setStepNumber(0)
@@ -42,17 +40,17 @@ const TikTakToe = () => {
         startGameHandler()
     }
 
-    const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.currentTarget.value) {
-            setGameId(Number(e.currentTarget.value))
+    const onChangeHandler = (value: string) => {
+        if (value) {
+            startGameHandler(Number(value))
         }
     }
 
-    const startGameHandler = () => {
+    const startGameHandler = (roomNumber?: number) => {
         if (ws && userName) {
-            if (gameId) {
+            if (roomNumber) {
                 const data = {
-                    gameId,
+                    gameId: roomNumber,
                     gameName: "tikTakToe",
                     playerName: userName
                 };
@@ -73,24 +71,21 @@ const TikTakToe = () => {
             const newHistory = history.slice(0, stepNumber + 1);
             const currentSquares = newHistory[newHistory.length - 1].squares.slice();
             setLastPlayer(userName);
-            if (winner || currentSquares[i]) {
-                return;
-            }
             currentSquares[i] = xIsNext ? "X" : "O";
             setXIsNext(!xIsNext);
             const data = {
                 gameId: userInfo.gameId,
                 gameName: userInfo.gameName,
                 userMove: userName,
-                board: currentSquares
+                board: currentSquares,
+                stepNumber: stepNumber
             }
             ws.emit('make-move', data)
         }
     };
 
     const handleUpdateGameState = useCallback((data: UserInfoType) => {
-        console.log(data)
-        const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId, gameName: data.gameName};
+        const updatedInfo = {...userInfo, board: data.board, userMove: data.userMove, gameId: data.gameId, gameName: data.gameName, winner: data.winner};
         setUserInfo(updatedInfo);
         if (updatedInfo.board) {
             setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
@@ -101,6 +96,10 @@ const TikTakToe = () => {
             } else {
                 setGameStatus("Opponent turn")
             }
+        }
+        if (updatedInfo.winner) {
+            setGameStatus(updatedInfo.winner)
+            setNewGame(true)
         }
     }, [userInfo, setUserInfo, setHistory, setStepNumber, userName, xIsNext]);
 
@@ -115,30 +114,19 @@ const TikTakToe = () => {
     }, [])
 
     useEffect(() => {
-        if (ws && userInfo) {
-            if (winner) {
-                const data = {
-                    info: `Winner: ${lastPlayer}`,
-                    gameName: userInfo.gameName,
-                    gameId: userInfo.gameId,
-                };
-                ws.emit("game-over", data);
-            } else if (stepNumber === 9) {
-                const data = {
-                    info: `Draw`,
-                    gameName: "tikTakToe",
-                    gameId: userInfo.gameId,
-                };
-                ws.emit("game-over", data);
-            }
-        }
-    }, [stepNumber, userInfo, winner, ws]);
-
-    useEffect(() => {
         if(ws){
             ws.on('update-game-state', handleUpdateGameState);
             return () => {
                 ws.off('update-game-state', handleUpdateGameState);
+            }
+        }
+    }, [handleUpdateGameState, ws]);
+
+    useEffect(() => {
+        if(ws){
+            ws.on('game-over', handleUpdateGameState);
+            return () => {
+                ws.off('game-over', handleUpdateGameState);
             }
         }
     }, [handleUpdateGameState, ws]);
@@ -177,12 +165,6 @@ const TikTakToe = () => {
             ws.on('join-game-failed', (data: any) => {
                 setGameStatus(`Join game failed, ${data.gameId}`)
             });
-
-            ws.on('game-over', (data: any) => {
-                console.log(data.info)
-                setGameStatus(data.info)
-                setNewGame(true)
-            })
         }
     }, [ws, userName, history]);
 
@@ -195,11 +177,8 @@ const TikTakToe = () => {
             <BackToMainMenu/>
             <Settings onClick={toggleSettingsGame}/>
             <Board squares={current.squares} onClick={handleClick} ws={ws} userName={userName} userInfo={userInfo}/>
-            {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame}/>}
-            {gameStatus && <div>{gameStatus}</div>}
-            {newGame && <button onClick={onClickNewGameHandler}>new Game</button>}
-            {!userInfo && <button onClick={startGameHandler}>start game</button>}
-            <input type="text" onChange={onChangeHandler} value={gameId}/>
+            <SettingsTikTakToe newGame={newGame} userInfo={userInfo} gameStatus={gameStatus} startGameHandler={startGameHandler} onClickNewGameHandler={onClickNewGameHandler}/>
+            {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame} onChangeHandler={onChangeHandler}/>}
         </div>
     );
 };

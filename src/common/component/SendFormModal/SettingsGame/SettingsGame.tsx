@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {ChangeEvent} from 'react';
 // @ts-ignore
 import s from "../ModalGeneralStyle.module.scss"
 import Modal from "../Modal";
@@ -9,30 +9,27 @@ import {useAppDispatch} from "../../../../store/store";
 type EditEmailModalPropType = {
     setModalActive: (modalActive: boolean) => void
     hide: () => void
+    onChangeHandler: (roomNumber: string) => void
 }
 
-const SettingsGame: React.FC<EditEmailModalPropType> = ({setModalActive, hide}) => {
-    const dispatch = useAppDispatch()
-    // const user = useAppSelector(s => s.profile.user)
+const SettingsGame: React.FC<EditEmailModalPropType> = ({setModalActive, hide, onChangeHandler}) => {
 
     const formik = useFormik({
         initialValues: {
-            email: "",
+            roomNumber: "",
         },
         validate: (values) => {
-            const errors: any = {};
-            if (!values.email) {
-                errors.email = 'Email required'
-            } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-                errors.email = 'Invalid email address'
+            const errors: {roomNumber?: string} = {};
+            if (!values.roomNumber) {
+                errors.roomNumber = 'Enter room number'
             }
             return errors;
         },
         onSubmit: values => {
-            // if(user.id){
-            //     dispatch(updateProfileTC({...user, email: values.email}))
-            // }
-            hide()
+            if (values.roomNumber) {
+                onChangeHandler(values.roomNumber)
+                hide()
+            }
         },
     });
 
@@ -44,18 +41,19 @@ const SettingsGame: React.FC<EditEmailModalPropType> = ({setModalActive, hide}) 
             <form onSubmit={formik.handleSubmit} className={s.form}>
                 <div className={s.inputsBlock}>
                     <div className={s.inputContainer}>
-                        <span className={s.label}>Email</span>
+                        <span className={s.label}>Room Number</span>
                         <input
-                            style={formik.errors.email && formik.touched.email ? {border: `1px solid #bd1010`} : {}}
-                            {...formik.getFieldProps('email')}
+                            style={formik.errors.roomNumber && formik.touched.roomNumber ? {border: `1px solid #bd1010`} : {}}
+                            type={"number"}
+                            {...formik.getFieldProps('roomNumber')}
                         />
-                        {formik.errors.email && formik.touched.email &&
-                            <span className={s.error}>{formik.errors.email}</span>}
+                        {formik.errors.roomNumber && formik.touched.roomNumber &&
+                            <span className={s.error}>{formik.errors.roomNumber}</span>}
                     </div>
                 </div>
                 <div className={s.buttonBlock}>
                     <button type="submit" className={s.submitButton} disabled={!(formik.isValid && formik.dirty)}>
-                        Update
+                        Start
                     </button>
                 </div>
             </form>

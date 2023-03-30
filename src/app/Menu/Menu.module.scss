@@ -4,6 +4,7 @@
   @include flex(column, center,center, wrap);
   width: 100%;
   height: 100vh;
+  position: relative;
 
   .tikTakToe {
     @include flex(column, center,center, wrap);
@@ -22,5 +23,14 @@
     border: 1px solid black;
     background-color: rgba(121, 121, 61, 0.6);
     text-decoration: none;
+  }
+
+  .vanta {
+    position: absolute;
+    bottom: 0;
+    right: 0.09%;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
   }
 }

@@ -1,0 +1,38 @@
+@import "../../../common/styles/mixin";
+
+
+.settingsContainer {
+  @include flex(column, flex-start, center, wrap);
+  width: 35%;
+  height: 55%;
+  //background-color: blue;
+
+  .gameStatus {
+    position: relative;
+    top: 0;
+    left: 0;
+    //background-color: green;
+  }
+
+  .buttonBlock {
+    @include flex(row, center, center, wrap);
+    width: 100%;
+  }
+
+  .statisticsBlock {
+    @include flex(row, center, center, wrap);
+    width: 100%;
+    //background-color: #9a9a9a;
+    margin-top: 30px;
+
+    .myMoves {
+      width: 50%;
+      //background-color: #6e6bc0;
+    }
+
+    .opponentMoves {
+      width: 50%;
+      //background-color: palevioletred;
+    }
+  }
+}

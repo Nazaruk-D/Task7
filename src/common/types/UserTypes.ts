@@ -7,6 +7,7 @@ export type UserInfoType = {
     players?: UserType[]
     bulls?: number
     cows?: number
+    winner?: string
 }
 
 type UserType = {

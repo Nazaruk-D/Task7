@@ -13,7 +13,7 @@
 
   .modalContent {
     @include flex(column, center, center, nowrap);
-    width: 750px;
+    width: 450px;
     min-height: 200px;
     border-radius: 20px;
     background-color: white;
