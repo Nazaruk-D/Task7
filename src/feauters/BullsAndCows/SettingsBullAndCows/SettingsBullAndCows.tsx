@@ -9,7 +9,7 @@ type SettingsPropsType = {
     myMoves: HistoryItemType[]
     opponentMoves: HistoryItemType[]
     onClickNewGameHandler: () => void
-    startGameHandler:() => void
+    startGameHandler: () => void
     userInfo: UserInfoType | null
 }
 
@@ -20,8 +20,8 @@ const SettingsBullAndCows: FC<SettingsPropsType> = ({myMoves,opponentMoves,newGa
                 {gameStatus && <div>{gameStatus}</div>}
             </div>
             <div className={s.buttonBlock}>
-                {newGame && <button type="submit" onClick={onClickNewGameHandler}>new Game</button>}
-                {!userInfo && <button type="submit" onClick={startGameHandler}>start game</button>}
+                {newGame && <button onClick={onClickNewGameHandler}>new Game</button>}
+                {!userInfo && <button onClick={startGameHandler}>start game</button>}
             </div>
             <div className={s.statisticsBlock}>
                 {myMoves.length > 0 && <div className={s.myMoves}>
