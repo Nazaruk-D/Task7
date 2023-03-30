@@ -46,8 +46,6 @@ const BullsAndCows = () => {
     const [preparation, setPreparation] = useState(false)
     const [yourNumber, setYourNumber] = useState<number[] | null>(null)
     const {settingsGame, toggleSettingsGame} = useModal()
-    // const [myMoves, setMyMoves] = useState<number[][]>([])
-    // const [opponentMoves, setOpponentMoves] = useState<number[][]>([])
 
 
     const myMoves = history.filter(move => move.userMove === userName);
@@ -62,6 +60,7 @@ const BullsAndCows = () => {
         setUserInfo(null)
         setNewGame(false)
         startGameHandler()
+        setYourNumber(null)
     }
 
     const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -72,12 +71,7 @@ const BullsAndCows = () => {
 
 
     const handleClick = (digits: number[]) => {
-        // console.log("POPAL V HANDLE")
-        // console.log(userInfo)
-        // console.log(userInfo!.userMove)
-        // console.log(userName)
         if (ws && userInfo) {
-            const newHistory = history.slice(0, stepNumber + 1);
             setLastPlayer(userName);
             const data = {
                 gameId: userInfo.gameId,
@@ -85,7 +79,6 @@ const BullsAndCows = () => {
                 gameName: userInfo.gameName,
                 board: digits
             }
-            console.log("MAKEMOVE:", data)
             ws.emit('make-move', data)
         }
     };
@@ -114,11 +107,11 @@ const BullsAndCows = () => {
                 setResult(updatedInfo.board)
                 setXIsNext(!xIsNext);
                 setMyMove(false)
-                setGameStatus("Your try")
+                setGameStatus("Opponent try")
             } else {
                 setResult2(updatedInfo.board)
                 setMyMove(true)
-                setGameStatus('Opponent try')
+                setGameStatus('Your try')
             }
         }
     }, [userInfo, setUserInfo, setHistory, setStepNumber, userName]);
@@ -200,10 +193,6 @@ const BullsAndCows = () => {
                 }
             });
 
-            // ws.on('check-number-result', (data: any) => {
-            //     console.log('check-number-result ', data)
-            // });
-
             ws.on('join-game-success', (data: any) => {
                 setGameStatus(`Successfully connected to the game, room number ${data.gameId}`)
                 setUserInfo(data)
@@ -214,7 +203,7 @@ const BullsAndCows = () => {
             });
 
             ws.on('game-over', (data: any) => {
-                setGameStatus(data.info)
+                setGameStatus(`Winner ${data.userMove}`)
                 setNewGame(true)
             })
         }
@@ -280,11 +269,13 @@ const BullsAndCows = () => {
             {!userInfo && <button type="submit" onClick={startGameHandler}>start game</button>}
             {myMoves.length > 0 && <div>
                 My moves!!!
-                <div>{myMoves.map(m => <div>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls}, cows: {m.cows === null ? 0 : m.cows}</div>)}</div>
+                <div>{myMoves.map((m, i) => <div key={i}>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls},
+                    cows: {m.cows === null ? 0 : m.cows}</div>)}</div>
             </div>}
             {opponentMoves.length > 1 && <div>
                 Opponents moves!
-                <div>{opponentMoves.map(m => <div>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls}, cows: {m.cows === null ? 0 : m.cows}</div>)}</div>
+                <div>{opponentMoves.map((m,i) => <div key={i}>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls},
+                    cows: {m.cows === null ? 0 : m.cows}</div>).slice(1, opponentMoves.length + 1)}</div>
             </div>}
         </div>
     );

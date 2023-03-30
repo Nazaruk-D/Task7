@@ -15,7 +15,7 @@ interface BoardProps {
     preparationGameHandler: (digits: number[]) => void
 }
 
-const Board: React.FC<BoardProps> = ({squares, preparationGameHandler, onClick, status, userInfo, myMove, newGame, preparation}) => {
+const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, newGame, preparation}) => {
 
     const formik = useFormik({
         initialValues: {
@@ -129,7 +129,7 @@ const Board: React.FC<BoardProps> = ({squares, preparationGameHandler, onClick, 
                 <div style={{color: "red"}}>{formik.errors.general}</div>}
             {/*<button type="submit">Отправить</button>*/}
             {preparation && <button type="submit">Submit your number</button>}
-            {myMove && <button type="submit">send numbers</button>}
+            {myMove && !newGame && <button type="submit">send numbers</button>}
         </form>
     );
 };

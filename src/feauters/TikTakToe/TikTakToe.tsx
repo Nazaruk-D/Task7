@@ -179,6 +179,7 @@ const TikTakToe = () => {
             });
 
             ws.on('game-over', (data: any) => {
+                console.log(data.info)
                 setGameStatus(data.info)
                 setNewGame(true)
             })
