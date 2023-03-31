@@ -1,13 +1,14 @@
 @import "../../../common/styles/mixin";
 
 .board {
-  width: 400px;
+  width: 500px;
   height: 480px;
-  background-color: white;
+  //background-color: white;
 
   .boardRow {
-    @include flex(row, space-between, center, nowrap);
+    @include flex(row, space-evenly, center, nowrap);
     width: 100%;
     height: 150px;
+    margin-bottom: 10px;
   }
 }

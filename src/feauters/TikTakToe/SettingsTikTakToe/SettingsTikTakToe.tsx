@@ -1,5 +1,7 @@
 import React, {FC} from 'react';
+import s from "./SettingsTikTakToe.module.scss"
 import {UserInfoType} from "../../../common/types/UserTypes";
+import Button from "../../../common/component/Button/Button";
 
 type SettingsTikTakToePropType = {
     gameStatus: string
@@ -11,10 +13,12 @@ type SettingsTikTakToePropType = {
 
 const SettingsTikTakToe: FC<SettingsTikTakToePropType> = ({gameStatus, newGame, userInfo, startGameHandler, onClickNewGameHandler}) => {
     return (
-        <div>
-            {gameStatus && <div>{gameStatus}</div>}
-            {newGame && <button onClick={onClickNewGameHandler}>new Game</button>}
-            {!userInfo && <button onClick={startGameHandler}>start game</button>}
+        <div className={s.settingsTikTakToeContainer}>
+            {gameStatus && <div className={s.status}>{gameStatus}</div>}
+            <div className={s.buttonBlock}>
+                {newGame && <Button onClick={onClickNewGameHandler}>New Game</Button>}
+                {!userInfo && <Button onClick={startGameHandler}>Start game</Button>}
+            </div>
         </div>
     );
 };

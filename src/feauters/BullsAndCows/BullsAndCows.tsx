@@ -104,7 +104,6 @@ const BullsAndCows = () => {
             }
         }
         if (updatedInfo.winner) {
-            // setGameStatus(updatedInfo.winner)
             setNewGame(true)
             if (data.userMoveId !== userId) {
                 setGameStatus(`You win!`)
@@ -143,7 +142,6 @@ const BullsAndCows = () => {
                 console.log('Disconnected from server');
             });
             ws.on('start-game', (data: any) => {
-                console.log("STAAART GAME DATA: ", data)
                 setPreparation(true)
                 setUserInfo(data)
                 setGameStatus("Game start, Choose a number according to the rules of the game")
@@ -151,19 +149,16 @@ const BullsAndCows = () => {
             ws.on('join-game-success', (data: any) => {
                 setGameStatus(`Successfully connected to the game, room number ${data.gameId}`)
                 setUserInfo(data)
-                console.log(data)
             });
 
             ws.on('join-game-failed', (data: any) => {
                 setGameStatus(`Join game failed, ${data.gameId}`)
             });
             ws.on('game-preparation', (data: any) => {
-                console.log("PREPARATION: ", data)
                 setMyMove(true)
                 setGameStatus("Choose your number")
             });
             ws.on('start-game-move', (data: any) => {
-                console.log(data)
                 setUserInfo(data)
                 if (data.userMoveId === userId) {
                     setMyMove(true)
@@ -173,15 +168,6 @@ const BullsAndCows = () => {
                     setGameStatus('Opponent try')
                 }
             });
-            // ws.on('game-over', (data: any) => {
-            //     setNewGame(true)
-            //     if (data.userMoveId !== userId) {
-            //         setGameStatus(`You win!`)
-            //
-            //     } else {
-            //         setGameStatus(`You lose`)
-            //     }
-            // })
         }
     }, [ws, userName, history, userId]);
 

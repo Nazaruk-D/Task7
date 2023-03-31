@@ -1,13 +1,49 @@
 @import "../../../common/styles/mixin";
 
+$primary-color: #ff6347;
+$secondary-color: #4b4b4b;
+$size: 150px;
+$depth: 0px;
+
 .square {
   @include flex(column, center, center, nowrap);
   width: 150px;
-  height: 90%;
-  background-color: rgba(255, 206, 32, 0.96);
+  height: 150px;
+  position: relative;
+  perspective: 1000px;
   cursor: pointer;
 
+  &:before,
+  &:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: $primary-color;
+  }
+
+  &:before {
+    width: $size;
+    height: $size;
+    border-radius: 30px 30px 30px 30px;
+    transform: translateZ(-$depth);
+  }
+
+  &:before,
+  &:after {
+    border-radius: 30px 30px 30px 30px;
+
+    box-shadow: 0 0 $depth $secondary-color;
+  }
+
   &:hover {
-    background-color: rgba(192, 149, 11, 0.96);
+    border-radius: 30px 30px 30px 30px;
+
+    box-shadow: 0 0 15px $secondary-color;
+  }
+
+  .squareValue {
+    position: relative;
+    z-index: 1;
   }
 }

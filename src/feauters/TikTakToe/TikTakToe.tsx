@@ -52,17 +52,19 @@ const TikTakToe = () => {
         if (ws && userInfo && userInfo.userMoveId === userId && !newGame) {
             const newHistory = history.slice(0, stepNumber + 1);
             const currentSquares = newHistory[newHistory.length - 1].squares.slice();
-            currentSquares[i] = xIsNext ? "X" : "O";
-            setXIsNext(!xIsNext);
-            const data = {
-                gameId: userInfo.gameId,
-                gameName: userInfo.gameName,
-                userMove: userName,
-                board: currentSquares,
-                stepNumber: stepNumber,
-                playerId: userInfo.playerId
+            if (!currentSquares[i]) {
+                currentSquares[i] = xIsNext ? "X" : "O";
+                setXIsNext(!xIsNext);
+                const data = {
+                    gameId: userInfo.gameId,
+                    gameName: userInfo.gameName,
+                    userMove: userName,
+                    board: currentSquares,
+                    stepNumber: stepNumber,
+                    playerId: userInfo.playerId
+                }
+                ws.emit('make-move', data)
             }
-            ws.emit('make-move', data)
         }
     };
 
@@ -88,7 +90,6 @@ const TikTakToe = () => {
             }
         }
         if (updatedInfo.winner) {
-            // setGameStatus(updatedInfo.winner)
             setNewGame(true)
             if (data.winner === "Draw") {
                 setGameStatus(`Draw!`)
