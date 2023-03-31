@@ -1,6 +1,8 @@
 import React from "react";
 import s from "./Board.module.scss"
 import {useFormik} from "formik";
+import Button from "../../../common/component/Button/Button";
+import {UserInfoType} from "../../../common/types/UserTypes";
 
 interface BoardProps {
     onClick: (digits: number[]) => void;
@@ -9,9 +11,13 @@ interface BoardProps {
     preparation: any
     yourNumber: number[] | null
     preparationGameHandler: (digits: number[]) => void
+    onClickNewGameHandler: () => void
+    startGameHandler: () => void
+    userInfo: UserInfoType | null
+    opponent: string
 }
 
-const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, newGame, preparation, yourNumber}) => {
+const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, newGame, preparation, yourNumber, opponent, startGameHandler, onClickNewGameHandler, userInfo}) => {
 
     const formik = useFormik({
         initialValues: {
@@ -49,16 +55,33 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
         },
     })
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        const input = e.target as HTMLInputElement;
+        if (+e.key >= 0 && +e.key <= 9) {
+            formik.setFieldValue(input.name, e.key);
+            const nextInput = input.nextElementSibling as HTMLInputElement | null;
+            if (nextInput) {
+                nextInput.focus();
+            }
+            e.preventDefault();
+        }
+    };
+
     return (
         <form onSubmit={formik.handleSubmit} className={s.board}>
-            {/*{yourNumber && <div className={s.yourNumber}>Your number: {yourNumber}</div>}*/}
+            <div className={s.infoBlock}>
+                <div>Your opponent: {opponent}</div>
+                {yourNumber && <div className={s.yourNumber}>Your number: {yourNumber}</div>}
+            </div>
             <div className={s.boardRow}>
                 <input
                     placeholder="digit1"
                     name={"digit1"}
+                    onKeyDown={handleKeyDown}
                     value={formik.values.digit1}
                     onChange={formik.handleChange}
                     className={s.input}
+                    autoComplete={"off"}
                     maxLength={1}
                     onInput={(event: React.FormEvent<HTMLInputElement>) => {
                         const input = event.target as HTMLInputElement;
@@ -75,7 +98,10 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
                     name={"digit2"}
                     value={formik.values.digit2}
                     onChange={formik.handleChange}
+                    onKeyDown={handleKeyDown}
                     className={s.input}
+                    autoComplete={"off"}
+                    maxLength={1}
                     onInput={(event: React.FormEvent<HTMLInputElement>) => {
                         const input = event.target as HTMLInputElement;
                         if (input.value.length === 1) {
@@ -92,6 +118,9 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
                     className={s.input}
                     value={formik.values.digit3}
                     onChange={formik.handleChange}
+                    onKeyDown={handleKeyDown}
+                    autoComplete={"off"}
+                    maxLength={1}
                     onInput={(event: React.FormEvent<HTMLInputElement>) => {
                         const input = event.target as HTMLInputElement;
                         if (input.value.length === 1) {
@@ -105,16 +134,21 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
                 <input
                     placeholder="digit4"
                     name={"digit4"}
+                    maxLength={1}
+                    autoComplete={"off"}
                     value={formik.values.digit4}
                     onChange={formik.handleChange}
+                    onKeyDown={handleKeyDown}
                     className={s.input}
                 />
             </div>
             {formik.touched.digit1 && formik.touched.digit2 && formik.touched.digit3 && formik.touched.digit4 && formik.errors.general &&
                 <div style={{color: "red"}}>{formik.errors.general}</div>}
             <div className={s.buttonBlock}>
-                {preparation && <button type="submit">Submit your number</button>}
-                {myMove && !newGame && <button type="submit">send numbers</button>}
+                {preparation && <Button>Submit your number</Button>}
+                {myMove && !newGame && <Button>send numbers</Button>}
+                {newGame && <Button onClick={onClickNewGameHandler}>New Game</Button>}
+                {!userInfo&& <Button onClick={startGameHandler}>Start game</Button>}
             </div>
         </form>
     );

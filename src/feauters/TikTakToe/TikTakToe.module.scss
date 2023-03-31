@@ -1,8 +1,9 @@
 @import "../../common/styles/mixin";
+@import "../../common/styles/variables";
 
 .tikTakToeContainer {
   @include flex(column, center, center, wrap);
-  background-color: #e1e1e1;
+  background-color: $mainColor;
   width: 100%;
   height: 100vh;
 }

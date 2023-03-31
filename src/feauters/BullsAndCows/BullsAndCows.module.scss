@@ -1,8 +1,9 @@
 @import "../../common/styles/mixin";
+@import "../../common/styles/variables";
 
 .bullsAndCowsContainer {
   @include flex(column, flex-start, center, wrap);
-  background-color: #d23535;
+  background-color: $mainColor;
   width: 100%;
   height: 100vh;
 }

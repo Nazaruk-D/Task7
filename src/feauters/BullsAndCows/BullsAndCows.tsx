@@ -8,7 +8,7 @@ import {useAppDispatch, useAppSelector} from "../../store/store";
 import {selectorNameUser, selectorUserId} from "../../store/selector/selectorApp";
 import io, {Socket} from "socket.io-client";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
-import {UserInfoType} from "../../common/types/UserTypes";
+import {UserInfoType, UserType} from "../../common/types/UserTypes";
 import Board from "./Board/Board";
 import SettingsBullAndCows from "./SettingsBullAndCows/SettingsBullAndCows";
 import {useModal} from "../../common/component/SendFormModal/useModal";
@@ -41,6 +41,7 @@ const BullsAndCows = () => {
     const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
     const [gameStatus, setGameStatus] = useState("You can select a room number in the settings to play with a friend.")
     const [newGame, setNewGame] = useState(false)
+    const [opponentName, setOpponentName] = useState("")
     const [preparation, setPreparation] = useState(false)
     const [yourNumber, setYourNumber] = useState<number[] | null>(null)
     const {settingsGame, toggleSettingsGame} = useModal()
@@ -144,6 +145,8 @@ const BullsAndCows = () => {
             ws.on('start-game', (data: any) => {
                 setPreparation(true)
                 setUserInfo(data)
+                const opponentData = data.players.find( (p: UserType) => p.id !== userId)
+                setOpponentName(opponentData.name)
                 setGameStatus("Game start, Choose a number according to the rules of the game")
             });
             ws.on('join-game-success', (data: any) => {
@@ -220,14 +223,16 @@ const BullsAndCows = () => {
                    preparation={preparation}
                    yourNumber={yourNumber}
                    preparationGameHandler={preparationGameHandler}
+                   onClickNewGameHandler={onClickNewGameHandler}
+                   startGameHandler={() => startGameHandler("bullsAndCows", userName, ws!)}
+                   userInfo={userInfo}
+                   opponent={opponentName}
             />
             <SettingsBullAndCows gameStatus={gameStatus}
-                                 newGame={newGame}
                                  myMoves={myMoves}
                                  opponentMoves={opponentMoves}
-                                 onClickNewGameHandler={onClickNewGameHandler}
-                                 startGameHandler={() => startGameHandler("bullsAndCows", userName, ws!)}
-                                 userInfo={userInfo}
+
+
             />
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame} onChangeHandler={onChangeHandler}/>}
         </div>

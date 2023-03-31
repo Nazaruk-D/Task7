@@ -2,7 +2,7 @@ import React from 'react';
 import s from './Button.module.scss';
 
 type Props = {
-    onClick: () => void;
+    onClick?: () => void;
     disabled?: boolean;
     className?: string;
     children: React.ReactNode;

@@ -3,9 +3,9 @@
 
 .settingsContainer {
   @include flex(column, flex-start, center, wrap);
-  width: 35%;
-  height: 55%;
-  //background-color: blue;
+  width: 40%;
+  height: 50%;
+  background-color: blue;
 
   .gameStatus {
     position: relative;
@@ -14,25 +14,22 @@
     //background-color: green;
   }
 
-  .buttonBlock {
-    @include flex(row, center, center, wrap);
-    width: 100%;
-  }
-
   .statisticsBlock {
-    @include flex(row, center, center, wrap);
+    @include flex(row, center, flex-start, wrap);
     width: 100%;
-    //background-color: #9a9a9a;
+    background-color: #9a9a9a;
     margin-top: 30px;
 
     .myMoves {
+      @include flex(column, flex-start, center, wrap);
       width: 50%;
-      //background-color: #6e6bc0;
+      background-color: #6e6bc0;
     }
 
     .opponentMoves {
+      @include flex(column, flex-start, center, wrap);
       width: 50%;
-      //background-color: palevioletred;
+      background-color: palevioletred;
     }
   }
 }

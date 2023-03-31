@@ -9,7 +9,6 @@ interface SquareProps {
 const Square: React.FC<SquareProps> = ({value, onClick}) => {
     return (
         <div className={s.square} onClick={onClick}>
-            {/*{value}*/}
             <div className={s.squareValue}>{value}</div>
         </div>
     );
