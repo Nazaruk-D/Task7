@@ -14,7 +14,6 @@ type SettingsTikTakToePropType = {
 const SettingsTikTakToe: FC<SettingsTikTakToePropType> = ({gameStatus, newGame, userInfo, startGameHandler, onClickNewGameHandler}) => {
     return (
         <div className={s.settingsTikTakToeContainer}>
-            {gameStatus && <div className={s.status}>{gameStatus}</div>}
             <div className={s.buttonBlock}>
                 {newGame && <Button onClick={onClickNewGameHandler}>New Game</Button>}
                 {!userInfo && <Button onClick={startGameHandler}>Start game</Button>}

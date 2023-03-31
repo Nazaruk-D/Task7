@@ -1,0 +1,14 @@
+@import "../../../common/styles/variables";
+
+.gameStatus {
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: $textColor;
+  padding: 1rem;
+  font-size: 25px;
+
+  &__fill {
+    height: 100%;
+    transition: width 0.3s ease-in-out;
+  }
+}

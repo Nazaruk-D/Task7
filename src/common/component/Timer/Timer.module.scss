@@ -1,0 +1,44 @@
+@import "../../../common/styles/mixin";
+
+//.timer {
+//  display: flex;
+//  flex-direction: column;
+//  align-items: center;
+//  font-size: 1.2rem;
+//  font-weight: bold;
+//  color: #fff;
+//
+//  &__label {
+//    margin-bottom: 0.5rem;
+//  }
+//
+//  &__time {
+//    background-color: #000;
+//    border: 2px solid #fff;
+//    padding: 0.5rem 1rem;
+//    border-radius: 5px;
+//    box-shadow: 0;
+//  }
+//}
+
+.timer {
+  @include flex(column, center, center, nowrap);
+  font-size: 2rem;
+  font-weight: bold;
+  color: #fff;
+
+  .time {
+    @include flex(column, center,center, wrap);
+    border: 3px solid #7a7a7a;
+    color: #7a7a7a;
+    padding: 1rem 2rem;
+    box-sizing: border-box;
+    border-radius: 0.5rem;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    width: 200px;
+    height: 100px;
+    text-align: center;
+    //letter-spacing: 5px;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+}

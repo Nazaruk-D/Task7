@@ -15,6 +15,8 @@ import Board from "./Board/Board";
 import SettingsTikTakToe from "./SettingsTikTakToe/SettingsTikTakToe";
 import {startGameHandler} from "../../utils/startGameHandler";
 import {setUserId} from "../../store/reducers/app-reducer";
+import GameStatus from "../../common/component/GameStatus/GameStatus";
+import Timer from "../../common/component/Timer/Timer";
 
 
 const TikTakToe = () => {
@@ -28,7 +30,7 @@ const TikTakToe = () => {
     const [xIsNext, setXIsNext] = useState(true);
     const [ws, setWs] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
-    const [gameStatus, setGameStatus] = useState("")
+    const [gameStatus, setGameStatus] = useState("You can select a room number in the settings to play with a friend.")
     const [newGame, setNewGame] = useState(false)
     const {settingsGame, toggleSettingsGame} = useModal()
 
@@ -173,8 +175,11 @@ const TikTakToe = () => {
 
     return (
         <div className={s.tikTakToeContainer}>
+            {/*<Timer time={30} onTimerEnd={()=>{}} myMove={my}/>*/}
             <BackToMainMenu/>
             <Settings onClick={toggleSettingsGame}/>
+            {gameStatus && <GameStatus gameStatus={gameStatus}/>}
+
             <Board squares={current.squares}
                    onClick={handleClick}
                    ws={ws}

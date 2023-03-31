@@ -8,7 +8,7 @@ import {MdKeyboardReturn} from "react-icons/md";
 export const BackToMainMenu = () => {
     return (
         <NavLink className={s.toPacksList} to={routes.mainPage}>
-            <MdKeyboardReturn size={30}/>
+            <MdKeyboardReturn size={30} style={{marginRight: "10px"}}/>
             Back to main menu
         </NavLink>
     )

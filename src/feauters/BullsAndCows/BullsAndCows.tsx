@@ -15,6 +15,7 @@ import {useModal} from "../../common/component/SendFormModal/useModal";
 import SettingsGame from "../../common/component/SendFormModal/SettingsGame/SettingsGame";
 import {startGameHandler} from "../../utils/startGameHandler";
 import {setUserId} from "../../store/reducers/app-reducer";
+import Timer from "../../common/component/Timer/Timer";
 
 export type HistoryItemType = {
     squares: number[] | null[];
@@ -227,6 +228,7 @@ const BullsAndCows = () => {
                    startGameHandler={() => startGameHandler("bullsAndCows", userName, ws!)}
                    userInfo={userInfo}
                    opponent={opponentName}
+                   gameStatus={gameStatus}
             />
             <SettingsBullAndCows gameStatus={gameStatus}
                                  myMoves={myMoves}

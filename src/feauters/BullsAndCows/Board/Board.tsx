@@ -1,8 +1,10 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import s from "./Board.module.scss"
 import {useFormik} from "formik";
 import Button from "../../../common/component/Button/Button";
 import {UserInfoType} from "../../../common/types/UserTypes";
+import Timer from "../../../common/component/Timer/Timer";
+import GameStatus from "../../../common/component/GameStatus/GameStatus";
 
 interface BoardProps {
     onClick: (digits: number[]) => void;
@@ -15,9 +17,23 @@ interface BoardProps {
     startGameHandler: () => void
     userInfo: UserInfoType | null
     opponent: string
+    gameStatus: string
 }
 
-const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, newGame, preparation, yourNumber, opponent, startGameHandler, onClickNewGameHandler, userInfo}) => {
+const Board: React.FC<BoardProps> = ({
+                                         gameStatus,
+                                         preparationGameHandler,
+                                         onClick,
+                                         myMove,
+                                         newGame,
+                                         preparation,
+                                         yourNumber,
+                                         opponent,
+                                         startGameHandler,
+                                         onClickNewGameHandler,
+                                         userInfo,
+
+                                     }) => {
 
     const formik = useFormik({
         initialValues: {
@@ -29,8 +45,10 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
         },
         validate: (values) => {
             const errors: { general?: string } = {}
-            if (!values.digit1 || !values.digit2 || !values.digit3 || !values.digit4) {
-                errors.general = 'Digit Required'
+            if (userInfo) {
+                if (!values.digit1 || !values.digit2 || !values.digit3 || !values.digit4) {
+                    errors.general = 'Digit Required'
+                }
             }
             const digits = [
                 values.digit1,
@@ -38,9 +56,10 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
                 values.digit3,
                 values.digit4,
             ]
-
-            if (new Set(digits).size !== 4) {
-                errors.general = "Numbers must not be repeated";
+            if (userInfo) {
+                if (new Set(digits).size !== 4) {
+                    errors.general = "Numbers must not be repeated";
+                }
             }
             return errors
         },
@@ -69,10 +88,13 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
 
     return (
         <form onSubmit={formik.handleSubmit} className={s.board}>
+            <Timer time={60} myMove={!myMove} onTimerEnd={() => {
+            }}/>
             <div className={s.infoBlock}>
-                <div>Your opponent: {opponent}</div>
-                {yourNumber && <div className={s.yourNumber}>Your number: {yourNumber}</div>}
+                {/*<div>Your opponent: {opponent}</div>*/}
+                {/*{yourNumber && <div className={s.yourNumber}>Your number: {yourNumber}</div>}*/}
             </div>
+            {gameStatus && <GameStatus gameStatus={gameStatus}/>}
             <div className={s.boardRow}>
                 <input
                     placeholder="digit1"
@@ -142,13 +164,15 @@ const Board: React.FC<BoardProps> = ({preparationGameHandler, onClick, myMove, n
                     className={s.input}
                 />
             </div>
-            {formik.touched.digit1 && formik.touched.digit2 && formik.touched.digit3 && formik.touched.digit4 && formik.errors.general &&
-                <div style={{color: "red"}}>{formik.errors.general}</div>}
+            <div className={s.errorBlock}>
+                {formik.touched.digit1 && formik.touched.digit2 && formik.touched.digit3 && formik.touched.digit4 && formik.errors.general &&
+                    <div style={{color: "red"}}>{formik.errors.general}</div>}
+            </div>
             <div className={s.buttonBlock}>
                 {preparation && <Button>Submit your number</Button>}
                 {myMove && !newGame && <Button>send numbers</Button>}
                 {newGame && <Button onClick={onClickNewGameHandler}>New Game</Button>}
-                {!userInfo&& <Button onClick={startGameHandler}>Start game</Button>}
+                {!userInfo && <Button onClick={startGameHandler}>Start game</Button>}
             </div>
         </form>
     );

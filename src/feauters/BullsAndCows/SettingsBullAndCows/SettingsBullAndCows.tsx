@@ -11,8 +11,10 @@ type SettingsPropsType = {
 const SettingsBullAndCows: FC<SettingsPropsType> = ({myMoves,opponentMoves,gameStatus}) => {
     return (
         <div className={s.settingsContainer}>
-            <div className={s.gameStatus}>
-                {gameStatus && <div>{gameStatus}</div>}
+            <div>
+                {/*{gameStatus && <div className={s.gameStatus}>*/}
+                {/*    {gameStatus}*/}
+                {/*</div>}*/}
             </div>
             <div className={s.statisticsBlock}>
               <div className={s.myMoves}>
