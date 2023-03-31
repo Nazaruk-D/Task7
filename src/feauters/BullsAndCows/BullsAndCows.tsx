@@ -4,8 +4,8 @@ import {useNavigate} from "react-router-dom";
 import {routes} from "../../routes/routes";
 import {BackToMainMenu} from "../../common/component/BackToMainMenu/BackToMainMenu";
 import Settings from "../../common/component/Settings/Settings";
-import {useAppSelector} from "../../store/store";
-import {selectorNameUser} from "../../store/selector/selectorApp";
+import {useAppDispatch, useAppSelector} from "../../store/store";
+import {selectorNameUser, selectorUserId} from "../../store/selector/selectorApp";
 import io, {Socket} from "socket.io-client";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
 import {UserInfoType} from "../../common/types/UserTypes";
@@ -14,17 +14,20 @@ import SettingsBullAndCows from "./SettingsBullAndCows/SettingsBullAndCows";
 import {useModal} from "../../common/component/SendFormModal/useModal";
 import SettingsGame from "../../common/component/SendFormModal/SettingsGame/SettingsGame";
 import {startGameHandler} from "../../utils/startGameHandler";
+import {setUserId} from "../../store/reducers/app-reducer";
 
 export type HistoryItemType = {
     squares: number[] | null[];
     userMove: string;
     bulls: number | null;
     cows: number | null;
+    userMoveId?: string
 }
 
 const BullsAndCows = () => {
-
     const userName = useAppSelector(selectorNameUser)
+    const userId = useAppSelector(selectorUserId)
+    const dispatch = useAppDispatch()
     const navigate = useNavigate()
 
     const [history, setHistory] = useState<HistoryItemType[]>([{
@@ -42,8 +45,8 @@ const BullsAndCows = () => {
     const [yourNumber, setYourNumber] = useState<number[] | null>(null)
     const {settingsGame, toggleSettingsGame} = useModal()
 
-    const myMoves = history.filter(move => move.userMove === userName);
-    const opponentMoves = history.filter(move => move.userMove !== userName);
+    const myMoves = history.filter(move => move.userMoveId === userId);
+    const opponentMoves = history.filter(move => move.userMoveId !== userId);
 
     const onClickNewGameHandler = () => {
         setHistory([{squares: Array(4).fill(null), userMove: "", bulls: null, cows: null}])
@@ -76,7 +79,7 @@ const BullsAndCows = () => {
         const updatedInfo = {
             ...userInfo,
             board: data.board,
-            userMove: data.userMove,
+            userMoveId: data.userMoveId,
             gameId: data.gameId,
             gameName: data.gameName,
             playerId: data.playerId
@@ -84,15 +87,15 @@ const BullsAndCows = () => {
         const {bulls, cows} = data
         setUserInfo(updatedInfo);
         if (updatedInfo) {
-            console.log("userMove: ", data.userMove)
-            const newInfo: HistoryItemType = {
+            console.log("userMove: ", data.userMoveId)
+            const newInfo: any = {
                 squares: updatedInfo.board,
-                userMove: data.userMove || "",
+                userMoveId: data.userMoveId || "",
                 bulls: bulls || null,
                 cows: cows || null
             }
             setHistory(prevHistory => [...prevHistory, newInfo]);
-            if (data.userMove === userName) {
+            if (data.userMoveId !== userId) {
                 setMyMove(false)
                 setGameStatus("Opponent try")
             } else {
@@ -100,7 +103,7 @@ const BullsAndCows = () => {
                 setGameStatus('Your try')
             }
         }
-    }, [userInfo, setUserInfo, setHistory, userName]);
+    }, [userInfo, setUserInfo, setHistory, userId]);
 
     useEffect(() => {
         if (!ws) {
@@ -120,6 +123,9 @@ const BullsAndCows = () => {
                 if (userName) {
                     ws.emit('set-name', userName)
                 }
+            });
+            ws.on('user-id', (data: string) => {
+                dispatch(setUserId(data))
             });
             ws.on('message', (data: any) => {
                 console.log('Message received from server:', data);
@@ -148,8 +154,9 @@ const BullsAndCows = () => {
                 setGameStatus("Choose your number")
             });
             ws.on('start-game-move', (data: any) => {
+                // console.log("start-game-move DATA: ", data)
                 setUserInfo(data)
-                if (data.userMove === userName) {
+                if (data.userMoveId === userId) {
                     setMyMove(true)
                     setGameStatus("Your try")
                 } else {
@@ -162,7 +169,7 @@ const BullsAndCows = () => {
                 setNewGame(true)
             })
         }
-    }, [ws, userName, history]);
+    }, [ws, userName, history, userId]);
 
     useEffect(() => {
         if (ws) {
@@ -183,7 +190,7 @@ const BullsAndCows = () => {
             const data = {
                 gameName: userInfo.gameName,
                 gameId: userInfo.gameId,
-                userMove: userInfo.userMove,
+                userMoveId: userInfo.userMoveId,
                 playerName: userName,
                 number: yourNumber
             };

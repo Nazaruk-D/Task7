@@ -4,6 +4,7 @@ export const selectorIsInitialized = (state: AppRootStateType) => state.app.init
 export const selectorError = (state: AppRootStateType) => state.app.error;
 export const selectorStatusApp = (state: AppRootStateType) => state.app.status;
 export const selectorNameUser = (state: AppRootStateType)=> state.app.userName;
+export const selectorUserId = (state: AppRootStateType)=> state.app.userId;
 
 export const selectorIsLoggedIn = (state: AppRootStateType) => state.auth.isLoggedIn;
 

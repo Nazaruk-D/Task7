@@ -30,6 +30,7 @@ const slice = createSlice({
         status: 'loading',
         initialized: false,
         userName: "",
+        userId: "",
         error: null,
     } as InitialStateType,
     reducers: {
@@ -38,6 +39,9 @@ const slice = createSlice({
         },
         setUserName(state, action) {
             state.userName = action.payload
+        },
+        setUserId(state, action) {
+            state.userId = action.payload
         },
         setAppErrorAC(state, action: PayloadAction<{ message: null | string }>) {
             state.error = action.payload.message
@@ -51,12 +55,13 @@ const slice = createSlice({
 })
 
 export const appReducer = slice.reducer;
-export const {setAppStatusAC, setUserName, setAppErrorAC} = slice.actions;
+export const {setAppStatusAC, setUserName, setAppErrorAC, setUserId} = slice.actions;
 
 type InitialStateType = {
     status: RequestStatusType
     initialized: boolean
     userName: string
+    userId: "" | string
     error: null | string
 }
 

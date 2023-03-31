@@ -1,8 +1,8 @@
 import React, {useCallback, useEffect, useState} from "react";
 import s from "./TikTakToe.module.scss"
 import io, {Socket} from 'socket.io-client';
-import {useAppSelector} from "../../store/store";
-import {selectorNameUser} from "../../store/selector/selectorApp";
+import {useAppDispatch, useAppSelector} from "../../store/store";
+import {selectorNameUser, selectorUserId} from "../../store/selector/selectorApp";
 import {routes} from "../../routes/routes";
 import {useNavigate} from "react-router-dom";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
@@ -14,11 +14,14 @@ import {UserInfoType} from "../../common/types/UserTypes";
 import Board from "./Board/Board";
 import SettingsTikTakToe from "./SettingsTikTakToe/SettingsTikTakToe";
 import {startGameHandler} from "../../utils/startGameHandler";
+import {setUserId} from "../../store/reducers/app-reducer";
 
 
 const TikTakToe = () => {
     const userName = useAppSelector(selectorNameUser)
+    const userId = useAppSelector(selectorUserId)
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
 
     const [history, setHistory] = useState([{squares: Array(9).fill(null)}]);
     const [stepNumber, setStepNumber] = useState(0);
@@ -46,7 +49,7 @@ const TikTakToe = () => {
     }
 
     const handleClick = (i: number) => {
-        if (ws && userInfo && userInfo.userMove === userName) {
+        if (ws && userInfo && userInfo.userMoveId === userId && !newGame) {
             const newHistory = history.slice(0, stepNumber + 1);
             const currentSquares = newHistory[newHistory.length - 1].squares.slice();
             currentSquares[i] = xIsNext ? "X" : "O";
@@ -67,7 +70,7 @@ const TikTakToe = () => {
         const updatedInfo = {
             ...userInfo,
             board: data.board,
-            userMove: data.userMove,
+            userMoveId: data.userMoveId,
             gameId: data.gameId,
             gameName: data.gameName,
             winner: data.winner,
@@ -77,7 +80,7 @@ const TikTakToe = () => {
         if (updatedInfo.board) {
             setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
             setStepNumber(prevStepNumber => prevStepNumber + 1);
-            if (data.userMove === userName) {
+            if (data.userMoveId === userId) {
                 setXIsNext(!xIsNext);
                 setGameStatus("Your turn")
             } else {
@@ -88,7 +91,7 @@ const TikTakToe = () => {
             setGameStatus(updatedInfo.winner)
             setNewGame(true)
         }
-    }, [userInfo, setUserInfo, setHistory, setStepNumber, userName, xIsNext]);
+    }, [userInfo, setUserInfo, setHistory, setStepNumber, userId, xIsNext]);
 
     useEffect(() => {
         if (!ws) {
@@ -110,6 +113,9 @@ const TikTakToe = () => {
                     ws.emit('set-name', userName)
                 }
             });
+            ws.on('user-id', (data: string) => {
+                dispatch(setUserId(data))
+            });
             ws.on('message', (data: any) => {
                 console.log('Message received from server:', data);
             });
@@ -125,16 +131,15 @@ const TikTakToe = () => {
                 setGameStatus(`Join game failed, ${data.gameId}`)
             });
             ws.on('start-game', (data: any) => {
-                console.log("STAAART GAME DATA: ", data)
                 setUserInfo(data)
-                if (data.userMove === userName) {
+                if (data.userMoveId === userId) {
                     setGameStatus("Game start, your turn")
                 } else {
                     setGameStatus('Game start, opponent turn')
                 }
             });
         }
-    }, [ws, userName, history]);
+    }, [ws, userName, history, userId]);
 
     useEffect(() => {
         if (ws) {
@@ -166,7 +171,8 @@ const TikTakToe = () => {
                    onClick={handleClick}
                    ws={ws}
                    userName={userName}
-                   userInfo={userInfo}/>
+                   userInfo={userInfo}
+            />
             <SettingsTikTakToe newGame={newGame}
                                userInfo={userInfo}
                                gameStatus={gameStatus}

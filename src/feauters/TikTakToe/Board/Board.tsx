@@ -14,32 +14,6 @@ interface BoardProps {
 }
 
 const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, userInfo}) => {
-    // const [gameId, setGameId] = useState<number | undefined>(undefined)
-
-    // const onChangeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-    //     if (e.currentTarget.value) {
-    //         setGameId(Number(e.currentTarget.value))
-    //     }
-    // }
-    //
-    // const onClickHandler = () => {
-    //     if (ws && userName) {
-    //         if (gameId) {
-    //             const data = {
-    //                 gameId,
-    //                 playerName: userName
-    //             };
-    //             ws.emit('join-game', data)
-    //         } else {
-    //             const data = {
-    //                 gameId: "new room",
-    //                 playerName: userName
-    //             };
-    //             ws.emit('join-game', data)
-    //         }
-    //     }
-    // }
-
     return (
         <div className={s.board}>
             <div className={s.boardRow}>
@@ -60,8 +34,6 @@ const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, us
             <div>
                 <div>{status}</div>
             </div>
-            {/*{!userInfo && <button onClick={onClickHandler}>start game</button>}*/}
-            {/*<input type="text" onChange={onChangeHandler} value={gameId}/>*/}
         </div>
     );
 };
