@@ -18,7 +18,6 @@ const Login = () => {
 
     return (
         <>
-            <Header/>
             <LoginForm/>
             <ErrorWindow/>
         </>

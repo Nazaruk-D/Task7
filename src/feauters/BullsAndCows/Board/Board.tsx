@@ -88,13 +88,8 @@ const Board: React.FC<BoardProps> = ({
 
     return (
         <form onSubmit={formik.handleSubmit} className={s.board}>
-            <Timer time={60} myMove={!myMove} onTimerEnd={() => {
-            }}/>
-            <div className={s.infoBlock}>
-                {/*<div>Your opponent: {opponent}</div>*/}
-                {/*{yourNumber && <div className={s.yourNumber}>Your number: {yourNumber}</div>}*/}
-            </div>
-            {gameStatus && <GameStatus gameStatus={gameStatus}/>}
+            <Timer time={60} myMove={!myMove} onTimerEnd={() => {}}/>
+            <GameStatus gameStatus={gameStatus}/>
             <div className={s.boardRow}>
                 <input
                     placeholder="digit1"

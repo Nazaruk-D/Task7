@@ -1,7 +1,6 @@
 @import "../../../common/styles/mixin";
+@import "../../../common/styles/variables";
 
-$primary-color: #FFC107;
-$secondary-color: #FF9800;
 .settingsContainer {
   @include flex(column, flex-start, center, wrap);
   width: 40%;
@@ -10,7 +9,7 @@ $secondary-color: #FF9800;
   .statisticsBlock {
     @include flex(row, center, flex-start, wrap);
     width: 100%;
-    margin-top: 30px;
+    margin-top: 10px;
 
     .myMoves {
       @include flex(column, flex-start, center, wrap);
@@ -20,6 +19,16 @@ $secondary-color: #FF9800;
     .opponentMoves {
       @include flex(column, flex-start, center, wrap);
       width: 50%;
+    }
+
+    .title {
+      @include text(18px, 18px, 600);
+      color: $textColor;
+    }
+
+    .result {
+      @include text(16px, 20px, 500);
+      color: $textColor;
     }
   }
 }

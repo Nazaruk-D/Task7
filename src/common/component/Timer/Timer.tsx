@@ -16,19 +16,20 @@ const Timer: React.FC<TimerProps> = ({ time, onTimerEnd, myMove }) => {
             setSecondsLeft(time);
         } else {
             intervalId = setInterval(() => {
-                setSecondsLeft(prevSecondsLeft => prevSecondsLeft - 1);
+                setSecondsLeft(prevSecondsLeft => {
+                    if (prevSecondsLeft === 0) {
+                        clearInterval(intervalId);
+                        onTimerEnd();
+                        return 0;
+                    } else {
+                        return prevSecondsLeft - 1;
+                    }
+                });
             }, 1000);
         }
 
         return () => clearInterval(intervalId);
-    }, [myMove, time]);
-
-    useEffect(() => {
-        if (secondsLeft === 0) {
-            clearInterval(intervalId);
-            onTimerEnd();
-        }
-    }, [secondsLeft, onTimerEnd]);
+    }, [myMove, onTimerEnd, time]);
 
     const formattedTime = new Date(secondsLeft * 1000).toISOString().substr(14, 5);
 

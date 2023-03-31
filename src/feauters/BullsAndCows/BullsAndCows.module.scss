@@ -6,4 +6,12 @@
   background-color: $mainColor;
   width: 100%;
   height: 100vh;
+
+  .yourNumber {
+    @include text(16px, 16px, 600);
+    color: $textColor;
+    position: absolute;
+    right: 50px;
+    bottom: 50px;
+  }
 }

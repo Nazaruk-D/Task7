@@ -1,0 +1,10 @@
+@import "../../../common/styles/mixin";
+@import "../../../common/styles/variables";
+
+.opponentName {
+  @include text(16px, 16px, 600);
+  color: $textColor;
+  position: absolute;
+  left: 50px;
+  bottom: 50px;
+}

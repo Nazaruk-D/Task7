@@ -1,11 +1,11 @@
 @import "../../../common/styles/variables";
+@import "../../../common/styles/mixin";
 
 .gameStatus {
-  font-weight: 700;
+  @include text(25px, 25px, 700);
   margin-bottom: 20px;
   color: $textColor;
   padding: 1rem;
-  font-size: 25px;
 
   &__fill {
     height: 100%;

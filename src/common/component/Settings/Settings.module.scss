@@ -3,12 +3,11 @@
 
 .settingsContainer {
   @include flex(row, flex-start, center, wrap);
+  @include text(19px, 19px, 700);
   position: absolute;
   right: 50px;
   top: 50px;
   text-decoration: none;
   color: $textColor;
-  font-weight: 700;
-  font-size: 19px;
   cursor: pointer;
 }

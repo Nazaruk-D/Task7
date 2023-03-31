@@ -5,12 +5,12 @@ import {useAppDispatch} from "../../../../store/store";
 import {routes} from "../../../../routes/routes";
 import {useNavigate} from "react-router-dom";
 import {setUserName} from "../../../../store/reducers/app-reducer";
+import Button from "../../../../common/component/Button/Button";
 
 
 const LoginForm = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
-
 
     const formik = useFormik({
         initialValues: {
@@ -45,9 +45,7 @@ const LoginForm = () => {
                     />
                     {formik.touched.name && formik.errors.name &&
                         <div style={{color: "red"}}>{formik.errors.name}</div>}
-                    <button className={s.button} type={'submit'} disabled={!(formik.isValid && formik.dirty)}>
-                        Login
-                    </button>
+                    <Button disabled={!(formik.isValid && formik.dirty)} className={s.button}>Login</Button>
                 </form>
             </div>
         </div>

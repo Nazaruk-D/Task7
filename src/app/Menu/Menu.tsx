@@ -4,6 +4,7 @@ import {Link, useNavigate} from "react-router-dom";
 import {routes} from "../../routes/routes";
 import {useAppSelector} from "../../store/store";
 import {selectorNameUser} from "../../store/selector/selectorApp";
+import Button from "../../common/component/Button/Button";
 
 
 
@@ -17,8 +18,8 @@ const Menu = () => {
 
     return (
         <div className={s.menuContainer}>
-            <Link to={routes.tikTakToe} className={s.tikTakToe}>Tik-Tak-Toe game</Link>
-            <Link to={routes.bullsAndCows} className={s.bullsAndCows}>Bulls and Cows game</Link>
+            <Button className={s.tikTakToe} onClick={() => navigate(routes.tikTakToe)}>Tik-Tak-Toe game</Button>
+            <Button className={s.bullsAndCows} onClick={() => navigate(routes.bullsAndCows)}>Bulls and Cows game</Button>
         </div>
     );
 };

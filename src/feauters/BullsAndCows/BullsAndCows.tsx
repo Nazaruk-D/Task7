@@ -16,6 +16,7 @@ import SettingsGame from "../../common/component/SendFormModal/SettingsGame/Sett
 import {startGameHandler} from "../../utils/startGameHandler";
 import {setUserId} from "../../store/reducers/app-reducer";
 import Timer from "../../common/component/Timer/Timer";
+import OpponentName from "../../common/component/OpponentName/OpponentName";
 
 export type HistoryItemType = {
     squares: number[] | null[];
@@ -166,10 +167,10 @@ const BullsAndCows = () => {
                 setUserInfo(data)
                 if (data.userMoveId === userId) {
                     setMyMove(true)
-                    setGameStatus("Your try")
+                    setGameStatus("Game start, your turn")
                 } else {
                     setMyMove(false)
-                    setGameStatus('Opponent try')
+                    setGameStatus('Game start, opponent turn')
                 }
             });
         }
@@ -233,9 +234,9 @@ const BullsAndCows = () => {
             <SettingsBullAndCows gameStatus={gameStatus}
                                  myMoves={myMoves}
                                  opponentMoves={opponentMoves}
-
-
             />
+            <OpponentName opponentName={opponentName}/>
+            {yourNumber && <div className={s.yourNumber}>Your number: {yourNumber}</div>}
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame} onChangeHandler={onChangeHandler}/>}
         </div>
     );

@@ -10,13 +10,15 @@ import {useModal} from "../../common/component/SendFormModal/useModal";
 import SettingsGame from "../../common/component/SendFormModal/SettingsGame/SettingsGame";
 import {BackToMainMenu} from "../../common/component/BackToMainMenu/BackToMainMenu";
 import Settings from "../../common/component/Settings/Settings";
-import {UserInfoType} from "../../common/types/UserTypes";
+import {UserInfoType, UserType} from "../../common/types/UserTypes";
 import Board from "./Board/Board";
 import SettingsTikTakToe from "./SettingsTikTakToe/SettingsTikTakToe";
 import {startGameHandler} from "../../utils/startGameHandler";
 import {setUserId} from "../../store/reducers/app-reducer";
 import GameStatus from "../../common/component/GameStatus/GameStatus";
 import Timer from "../../common/component/Timer/Timer";
+import OpponentName from "../../common/component/OpponentName/OpponentName";
+import opponentName from "../../common/component/OpponentName/OpponentName";
 
 
 const TikTakToe = () => {
@@ -32,6 +34,8 @@ const TikTakToe = () => {
     const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
     const [gameStatus, setGameStatus] = useState("You can select a room number in the settings to play with a friend.")
     const [newGame, setNewGame] = useState(false)
+    const [opponentName, setOpponentName] = useState("")
+    const [myMove, setMyMove] = useState(false);
     const {settingsGame, toggleSettingsGame} = useModal()
 
     const current = history[stepNumber];
@@ -86,8 +90,10 @@ const TikTakToe = () => {
             setStepNumber(prevStepNumber => prevStepNumber + 1);
             if (data.userMoveId === userId) {
                 setXIsNext(!xIsNext);
+                setMyMove(true)
                 setGameStatus("Your turn")
             } else {
+                setMyMove(false)
                 setGameStatus("Opponent turn")
             }
         }
@@ -142,9 +148,13 @@ const TikTakToe = () => {
             });
             ws.on('start-game', (data: any) => {
                 setUserInfo(data)
+                const opponentData = data.players.find( (p: UserType) => p.id !== userId)
+                setOpponentName(opponentData.name)
                 if (data.userMoveId === userId) {
+                    setMyMove(true)
                     setGameStatus("Game start, your turn")
                 } else {
+                    setMyMove(false)
                     setGameStatus('Game start, opponent turn')
                 }
             });
@@ -175,11 +185,10 @@ const TikTakToe = () => {
 
     return (
         <div className={s.tikTakToeContainer}>
-            {/*<Timer time={30} onTimerEnd={()=>{}} myMove={my}/>*/}
             <BackToMainMenu/>
             <Settings onClick={toggleSettingsGame}/>
-            {gameStatus && <GameStatus gameStatus={gameStatus}/>}
-
+            <Timer time={30} onTimerEnd={()=>{}} myMove={!myMove}/>
+            <GameStatus gameStatus={gameStatus}/>
             <Board squares={current.squares}
                    onClick={handleClick}
                    ws={ws}
@@ -191,6 +200,7 @@ const TikTakToe = () => {
                                gameStatus={gameStatus}
                                startGameHandler={() => startGameHandler("tikTakToe", userName, ws!)}
                                onClickNewGameHandler={onClickNewGameHandler}/>
+            <OpponentName opponentName={opponentName}/>
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame}
                                            hide={toggleSettingsGame}
                                            onChangeHandler={onChangeHandler}/>}
