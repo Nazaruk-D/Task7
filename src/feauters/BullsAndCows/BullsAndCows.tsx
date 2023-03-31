@@ -45,8 +45,8 @@ const BullsAndCows = () => {
     const [yourNumber, setYourNumber] = useState<number[] | null>(null)
     const {settingsGame, toggleSettingsGame} = useModal()
 
-    const myMoves = history.filter(move => move.userMoveId === userId);
-    const opponentMoves = history.filter(move => move.userMoveId !== userId);
+    const myMoves = history.filter(move => move.userMoveId !== userId);
+    const opponentMoves = history.filter(move => move.userMoveId === userId);
 
     const onClickNewGameHandler = () => {
         setHistory([{squares: Array(4).fill(null), userMove: "", bulls: null, cows: null}])
@@ -82,12 +82,12 @@ const BullsAndCows = () => {
             userMoveId: data.userMoveId,
             gameId: data.gameId,
             gameName: data.gameName,
+            winner: data.winner,
             playerId: data.playerId
         };
         const {bulls, cows} = data
         setUserInfo(updatedInfo);
         if (updatedInfo) {
-            console.log("userMove: ", data.userMoveId)
             const newInfo: any = {
                 squares: updatedInfo.board,
                 userMoveId: data.userMoveId || "",
@@ -101,6 +101,15 @@ const BullsAndCows = () => {
             } else {
                 setMyMove(true)
                 setGameStatus('Your try')
+            }
+        }
+        if (updatedInfo.winner) {
+            // setGameStatus(updatedInfo.winner)
+            setNewGame(true)
+            if (data.userMoveId !== userId) {
+                setGameStatus(`You win!`)
+            } else {
+                setGameStatus(`You lose`)
             }
         }
     }, [userInfo, setUserInfo, setHistory, userId]);
@@ -154,7 +163,7 @@ const BullsAndCows = () => {
                 setGameStatus("Choose your number")
             });
             ws.on('start-game-move', (data: any) => {
-                // console.log("start-game-move DATA: ", data)
+                console.log(data)
                 setUserInfo(data)
                 if (data.userMoveId === userId) {
                     setMyMove(true)
@@ -164,10 +173,15 @@ const BullsAndCows = () => {
                     setGameStatus('Opponent try')
                 }
             });
-            ws.on('game-over', (data: any) => {
-                setGameStatus(`Winner ${data.userMove}`)
-                setNewGame(true)
-            })
+            // ws.on('game-over', (data: any) => {
+            //     setNewGame(true)
+            //     if (data.userMoveId !== userId) {
+            //         setGameStatus(`You win!`)
+            //
+            //     } else {
+            //         setGameStatus(`You lose`)
+            //     }
+            // })
         }
     }, [ws, userName, history, userId]);
 
@@ -176,6 +190,15 @@ const BullsAndCows = () => {
             ws.on('check-number-result', handleUpdateGameState);
             return () => {
                 ws.off('check-number-result', handleUpdateGameState);
+            }
+        }
+    }, [handleUpdateGameState, ws]);
+
+    useEffect(() => {
+        if (ws) {
+            ws.on('game-over', handleUpdateGameState);
+            return () => {
+                ws.off('game-over', handleUpdateGameState);
             }
         }
     }, [handleUpdateGameState, ws]);

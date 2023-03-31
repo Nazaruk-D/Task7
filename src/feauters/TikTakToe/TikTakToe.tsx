@@ -88,8 +88,15 @@ const TikTakToe = () => {
             }
         }
         if (updatedInfo.winner) {
-            setGameStatus(updatedInfo.winner)
+            // setGameStatus(updatedInfo.winner)
             setNewGame(true)
+            if (data.winner === "Draw") {
+                setGameStatus(`Draw!`)
+            } else if (data.userMoveId !== userId) {
+                setGameStatus(`You win!`)
+            } else {
+                setGameStatus(`You lose`)
+            }
         }
     }, [userInfo, setUserInfo, setHistory, setStepNumber, userId, xIsNext]);
 

@@ -24,16 +24,16 @@ const SettingsBullAndCows: FC<SettingsPropsType> = ({myMoves,opponentMoves,newGa
                 {!userInfo && <button onClick={startGameHandler}>start game</button>}
             </div>
             <div className={s.statisticsBlock}>
-                {myMoves.length > 0 && <div className={s.myMoves}>
+              <div className={s.myMoves}>
                     My moves!!!
-                    <div>{myMoves.map((m, i) => <div key={i}>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls},
-                        cows: {m.cows === null ? 0 : m.cows}</div>)}</div>
-                </div>}
-                {opponentMoves.length > 1 && <div className={s.opponentMoves}>
+                  {myMoves.length > 0 && <div>{myMoves.map((m, i) => <div key={i}>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls},
+                        cows: {m.cows === null ? 0 : m.cows}</div>).slice(1, myMoves.length + 1)}</div>}
+                </div>
+                <div className={s.opponentMoves}>
                     Opponents moves!
-                    <div>{opponentMoves.map((m,i) => <div key={i}>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls},
-                        cows: {m.cows === null ? 0 : m.cows}</div>).slice(1, opponentMoves.length + 1)}</div>
-                </div>}
+                    {opponentMoves.length > 0 && <div>{opponentMoves.map((m,i) => <div key={i}>{m.squares}: bulls: {m.bulls === null ? 0 : m.bulls},
+                        cows: {m.cows === null ? 0 : m.cows}</div>)}</div>}
+                </div>
             </div>
         </div>
     );
