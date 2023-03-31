@@ -173,6 +173,14 @@ const BullsAndCows = () => {
                     setGameStatus('Game start, opponent turn')
                 }
             });
+            ws.on('game-over-timer', (data: any) => {
+                setNewGame(true)
+                if (data.winner.id === userId) {
+                    setGameStatus("You won on time")
+                } else {
+                    setGameStatus("Time is up, you're out of time")
+                }
+            });
         }
     }, [ws, userName, history, userId]);
 
@@ -223,13 +231,13 @@ const BullsAndCows = () => {
                    myMove={myMove}
                    newGame={newGame}
                    preparation={preparation}
-                   yourNumber={yourNumber}
                    preparationGameHandler={preparationGameHandler}
                    onClickNewGameHandler={onClickNewGameHandler}
                    startGameHandler={() => startGameHandler("bullsAndCows", userName, ws!)}
                    userInfo={userInfo}
-                   opponent={opponentName}
                    gameStatus={gameStatus}
+                   ws={ws!}
+                   userId={userId}
             />
             <SettingsBullAndCows gameStatus={gameStatus}
                                  myMoves={myMoves}

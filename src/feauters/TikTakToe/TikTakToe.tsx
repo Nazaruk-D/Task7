@@ -19,6 +19,7 @@ import GameStatus from "../../common/component/GameStatus/GameStatus";
 import Timer from "../../common/component/Timer/Timer";
 import OpponentName from "../../common/component/OpponentName/OpponentName";
 import opponentName from "../../common/component/OpponentName/OpponentName";
+import {timeIsOver} from "../../utils/timeIsOver";
 
 
 const TikTakToe = () => {
@@ -158,6 +159,14 @@ const TikTakToe = () => {
                     setGameStatus('Game start, opponent turn')
                 }
             });
+            ws.on('game-over-timer', (data: any) => {
+                setNewGame(true)
+                if (data.winner.id === userId) {
+                    setGameStatus("You won on time")
+                } else {
+                    setGameStatus("Time is up, you're out of time")
+                }
+            });
         }
     }, [ws, userName, history, userId]);
 
@@ -179,6 +188,7 @@ const TikTakToe = () => {
         }
     }, [handleUpdateGameState, ws]);
 
+
     useEffect(() => {
         if (!userName) navigate(routes.login)
     }, [userName, navigate])
@@ -187,7 +197,7 @@ const TikTakToe = () => {
         <div className={s.tikTakToeContainer}>
             <BackToMainMenu/>
             <Settings onClick={toggleSettingsGame}/>
-            <Timer time={30} onTimerEnd={()=>{}} myMove={!myMove}/>
+            <Timer time={30} onTimerEnd={() => timeIsOver(userId, ws!, userInfo!)} myMove={!myMove}/>
             <GameStatus gameStatus={gameStatus}/>
             <Board squares={current.squares}
                    onClick={handleClick}

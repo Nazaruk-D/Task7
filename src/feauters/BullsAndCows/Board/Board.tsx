@@ -1,23 +1,26 @@
-import React, {useEffect, useState} from "react";
+import React from "react";
 import s from "./Board.module.scss"
 import {useFormik} from "formik";
 import Button from "../../../common/component/Button/Button";
 import {UserInfoType} from "../../../common/types/UserTypes";
 import Timer from "../../../common/component/Timer/Timer";
 import GameStatus from "../../../common/component/GameStatus/GameStatus";
+import {timeIsOver} from "../../../utils/timeIsOver";
+import {Socket} from "socket.io-client";
+import {DefaultEventsMap} from "socket.io/dist/typed-events";
 
 interface BoardProps {
     onClick: (digits: number[]) => void;
     myMove: boolean
     newGame: any,
     preparation: any
-    yourNumber: number[] | null
     preparationGameHandler: (digits: number[]) => void
     onClickNewGameHandler: () => void
     startGameHandler: () => void
     userInfo: UserInfoType | null
-    opponent: string
     gameStatus: string
+    userId: string
+    ws: Socket<DefaultEventsMap, DefaultEventsMap>
 }
 
 const Board: React.FC<BoardProps> = ({
@@ -27,12 +30,11 @@ const Board: React.FC<BoardProps> = ({
                                          myMove,
                                          newGame,
                                          preparation,
-                                         yourNumber,
-                                         opponent,
                                          startGameHandler,
                                          onClickNewGameHandler,
                                          userInfo,
-
+                                         userId,
+                                         ws
                                      }) => {
 
     const formik = useFormik({
@@ -88,7 +90,7 @@ const Board: React.FC<BoardProps> = ({
 
     return (
         <form onSubmit={formik.handleSubmit} className={s.board}>
-            <Timer time={60} myMove={!myMove} onTimerEnd={() => {}}/>
+            <Timer time={60} myMove={!myMove} onTimerEnd={() => timeIsOver(userId, ws!, userInfo!)}/>
             <GameStatus gameStatus={gameStatus}/>
             <div className={s.boardRow}>
                 <input
