@@ -3,13 +3,13 @@
 
 $primary-color: #ff6347;
 $secondary-color: #4b4b4b;
-$size: 150px;
+$size: 140px;
 $depth: 0px;
 
 .square {
   @include flex(column, center, center, nowrap);
-  width: 130px;
-  height: 130px;
+  width: $size;
+  height: $size;
   position: relative;
   perspective: 1000px;
   cursor: pointer;

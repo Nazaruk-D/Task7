@@ -18,8 +18,12 @@
     width: 200px;
     height: 100px;
     text-align: center;
-    //letter-spacing: 5px;
+
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    @media screen and (max-width: $mediaWidth) {
+      width: 150px;
+      height: 80px;
+    }
   }
 
   .red {
