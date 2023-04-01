@@ -51,6 +51,10 @@ const TikTakToe = () => {
 
     const onChangeHandler = (value: string) => {
         if (value && ws) {
+            setHistory([{squares: Array(9).fill(null)}])
+            setStepNumber(0)
+            setUserInfo(null)
+            setNewGame(false)
             startGameHandler("tikTakToe", userName, ws, Number(value))
         }
     }
@@ -100,6 +104,7 @@ const TikTakToe = () => {
         }
         if (updatedInfo.winner) {
             setNewGame(true)
+            setMyMove(false)
             if (data.winner === "Draw") {
                 setGameStatus(`Draw!`)
             } else if (data.userMoveId !== userId) {
@@ -161,6 +166,7 @@ const TikTakToe = () => {
             });
             ws.on('game-over-timer', (data: any) => {
                 setNewGame(true)
+                setMyMove(false)
                 if (data.winner.id === userId) {
                     setGameStatus("You won on time")
                 } else {
