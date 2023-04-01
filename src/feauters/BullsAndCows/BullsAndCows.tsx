@@ -114,7 +114,7 @@ const BullsAndCows = () => {
             setNewGame(true)
             setMyMove(false)
             if (data.userMoveId !== userId) {
-                setGameStatus(`You win!`)
+                data.message ? setGameStatus(`You win, ${data.message}`) : setGameStatus(`You win!`)
             } else {
                 setGameStatus(`You lose`)
             }

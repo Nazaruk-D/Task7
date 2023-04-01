@@ -87,7 +87,8 @@ const TikTakToe = () => {
             gameId: data.gameId,
             gameName: data.gameName,
             winner: data.winner,
-            playerId: data.playerId
+            playerId: data.playerId,
+            message: data.message
         };
         setUserInfo(updatedInfo);
         if (updatedInfo.board) {
@@ -108,7 +109,7 @@ const TikTakToe = () => {
             if (data.winner === "Draw") {
                 setGameStatus(`Draw!`)
             } else if (data.userMoveId !== userId) {
-                setGameStatus(`You win!`)
+                data.message ? setGameStatus(`You win, ${data.message}`) : setGameStatus(`You win!`)
             } else {
                 setGameStatus(`You lose`)
             }
@@ -150,7 +151,8 @@ const TikTakToe = () => {
             });
 
             ws.on('join-game-failed', (data: any) => {
-                setGameStatus(`Join game failed, ${data.gameId}`)
+                console.log(data)
+                setGameStatus(`Join game failed, ${data}`)
             });
             ws.on('start-game', (data: any) => {
                 setUserInfo(data)
