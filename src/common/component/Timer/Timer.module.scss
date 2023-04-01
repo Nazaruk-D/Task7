@@ -1,25 +1,5 @@
 @import "../../../common/styles/mixin";
-
-//.timer {
-//  display: flex;
-//  flex-direction: column;
-//  align-items: center;
-//  font-size: 1.2rem;
-//  font-weight: bold;
-//  color: #fff;
-//
-//  &__label {
-//    margin-bottom: 0.5rem;
-//  }
-//
-//  &__time {
-//    background-color: #000;
-//    border: 2px solid #fff;
-//    padding: 0.5rem 1rem;
-//    border-radius: 5px;
-//    box-shadow: 0;
-//  }
-//}
+@import "../../../common/styles/variables";
 
 .timer {
   @include flex(column, center, center, nowrap);
@@ -40,5 +20,9 @@
     text-align: center;
     //letter-spacing: 5px;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
+
+  .red {
+    color: $secondMainColor;
   }
 }

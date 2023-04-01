@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import s from './Timer.module.scss';
 
-interface TimerProps {
+type TimerPropsType = {
     time: number;
     onTimerEnd: () => void;
     myMove: boolean;
 }
 
-const Timer: React.FC<TimerProps> = ({ time, onTimerEnd, myMove }) => {
+const Timer: React.FC<TimerPropsType> = ({ time, onTimerEnd, myMove }) => {
     const [secondsLeft, setSecondsLeft] = useState(time);
     let intervalId: NodeJS.Timeout;
 
@@ -32,10 +32,11 @@ const Timer: React.FC<TimerProps> = ({ time, onTimerEnd, myMove }) => {
     }, [myMove, onTimerEnd, time]);
 
     const formattedTime = new Date(secondsLeft * 1000).toISOString().substr(14, 5);
+    const timerClassName = secondsLeft <= 10 ? `${s.time} ${s.red}` : s.time;
 
     return (
         <div className={s.timer}>
-            <div className={s.time}>{formattedTime}</div>
+            <div className={timerClassName}>{formattedTime}</div>
         </div>
     );
 };

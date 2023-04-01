@@ -111,7 +111,7 @@ const Board: React.FC<BoardProps> = ({
             <GameStatus gameStatus={gameStatus}/>
             <div className={s.boardRow}>
                 <input
-                    placeholder="digit1"
+                    placeholder={"digit 1"}
                     name={"digit1"}
                     onKeyDown={handleKeyDown}
                     value={formik.values.digit1}
@@ -130,7 +130,7 @@ const Board: React.FC<BoardProps> = ({
                     }}
                 />
                 <input
-                    placeholder="digit2"
+                    placeholder={"digit 2"}
                     name={"digit2"}
                     value={formik.values.digit2}
                     onChange={formik.handleChange}
@@ -149,7 +149,7 @@ const Board: React.FC<BoardProps> = ({
                     }}
                 />
                 <input
-                    placeholder="digit3"
+                    placeholder={"digit 3"}
                     name={"digit3"}
                     className={s.input}
                     value={formik.values.digit3}
@@ -168,7 +168,7 @@ const Board: React.FC<BoardProps> = ({
                     }}
                 />
                 <input
-                    placeholder="digit4"
+                    placeholder={"digit 4"}
                     name={"digit4"}
                     maxLength={1}
                     autoComplete={"off"}

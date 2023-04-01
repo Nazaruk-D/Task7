@@ -34,5 +34,9 @@
       @include text(16px, 20px, 500);
       color: $textColor;
     }
+
+    .number {
+      color: $secondMainColor;
+    }
   }
 }
