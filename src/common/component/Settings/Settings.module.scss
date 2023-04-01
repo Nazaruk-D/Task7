@@ -10,4 +10,14 @@
   text-decoration: none;
   color: $textColor;
   cursor: pointer;
+  @media screen and (max-width: $mediaWidth) {
+    right: 30px;
+    top: 30px;
+  }
+
+  .text {
+    @media screen and (max-width: $mediaWidth) {
+      display: none;
+    }
+  }
 }

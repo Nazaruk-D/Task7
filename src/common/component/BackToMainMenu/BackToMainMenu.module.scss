@@ -9,4 +9,14 @@
   top: 50px;
   text-decoration: none;
   color: $textColor;
+  @media screen and (max-width: $mediaWidth) {
+    left: 30px;
+    top: 30px;
+  }
+
+  .text {
+    @media screen and (max-width: $mediaWidth) {
+      display: none;
+    }
+  }
 }

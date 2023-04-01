@@ -1,6 +1,6 @@
 import React, {FC} from 'react'
 import s from './BackToMainMenu.module.scss'
-import { NavLink } from 'react-router-dom'
+import {NavLink} from 'react-router-dom'
 import {routes} from "../../../routes/routes";
 import {MdKeyboardReturn} from "react-icons/md";
 import {Socket} from "socket.io-client";
@@ -12,15 +12,19 @@ type BackToMainMenuPropsType = {
 
 export const BackToMainMenu: FC<BackToMainMenuPropsType> = ({ws}) => {
     const onClickHandler = () => {
-        if(ws) {
+        if (ws) {
             ws.disconnect();
         }
     }
 
     return (
         <NavLink className={s.toPacksList} to={routes.mainPage} onClick={onClickHandler}>
-            <MdKeyboardReturn size={30} style={{marginRight: "10px"}}/>
-            Back to main menu
+            <div>
+                <MdKeyboardReturn size={30} style={{marginRight: "10px"}}/>
+            </div>
+            <div className={s.text}>
+                Back to main menu
+            </div>
         </NavLink>
     )
 }

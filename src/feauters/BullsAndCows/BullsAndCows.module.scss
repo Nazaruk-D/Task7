@@ -13,5 +13,9 @@
     position: absolute;
     right: 50px;
     bottom: 50px;
+    @media screen and (max-width: $mediaWidth) {
+      right: 30px;
+      bottom: 21px;
+    }
   }
 }

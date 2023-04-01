@@ -7,4 +7,8 @@
   position: absolute;
   left: 50px;
   bottom: 50px;
+  @media screen and (max-width: $mediaWidth) {
+    left: 20px;
+    bottom: 20px;
+  }
 }

@@ -9,8 +9,12 @@ type SettingsPropsType = {
 const Settings: FC<SettingsPropsType> = ({onClick}) => {
     return (
         <div className={s.settingsContainer} onClick={onClick}>
-            Settings
-            <FiSettings style={{marginLeft:"10px", fontSize: "23px"}}/>
+            <div className={s.text}>
+                Settings
+            </div>
+            <div className={s.icon}>
+                <FiSettings style={{marginLeft:"10px", fontSize: "23px"}}/>
+            </div>
         </div>
     );
 };

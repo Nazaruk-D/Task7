@@ -1,14 +1,19 @@
 @import "../../../common/styles/mixin";
+@import "../../../common/styles/variables";
 
 .board {
   @include flex(column, flex-end, center, wrap);
-  width: 50%;
+  width: 100%;
   height: 60%;
+  @media screen and (max-width: $mediaWidth) {
+    height: 65%;
+  }
 
   .infoBlock {
+    @include flex(row, space-between, center, wrap);
     width: 85%;
     margin-bottom: 30px;
-    @include flex(row, space-between, center, wrap);
+
 
     .yourOpponent {
     }
@@ -20,6 +25,10 @@
   .boardRow {
     @include flex(row, center, flex-end, nowrap);
     width: 100%;
+    @media screen and (max-width: $mediaWidth) {
+      @include flex(row, center, flex-end, wrap);
+
+    }
 
     .input {
       display: block;
@@ -38,6 +47,11 @@
       transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
       font-size: 30px;
       font-weight: 600;
+      @media screen and (max-width: $mediaWidth) {
+        width: 110px;
+        height: 110px;
+        margin-bottom: 10px;
+      }
     }
 
     .input:focus {
@@ -57,11 +71,18 @@
     @include flex(row, center, flex-end, nowrap);
     width: 100%;
     height: 40px;
+    @media screen and (max-width: $mediaWidth) {
+      width: 100%;
+      height: 5px;
+    }
   }
 
   .buttonBlock {
     @include flex(row, center, flex-end, wrap);
     width: 100%;
     height: 40px;
+    @media screen and (max-width: $mediaWidth) {
+      height: 40px;
+    }
   }
 }

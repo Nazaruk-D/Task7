@@ -6,6 +6,11 @@
   margin-bottom: 20px;
   color: $textColor;
   padding: 1rem;
+  @media screen and (max-width: $mediaWidth) {
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
 
   &__fill {
     height: 100%;

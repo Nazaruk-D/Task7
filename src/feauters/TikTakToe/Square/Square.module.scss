@@ -1,4 +1,5 @@
 @import "../../../common/styles/mixin";
+@import "../../../common/styles/variables";
 
 $primary-color: #ff6347;
 $secondary-color: #4b4b4b;
@@ -7,11 +8,16 @@ $depth: 0px;
 
 .square {
   @include flex(column, center, center, nowrap);
-  width: 150px;
-  height: 150px;
+  width: 130px;
+  height: 130px;
   position: relative;
   perspective: 1000px;
   cursor: pointer;
+  @media screen and (max-width: $mediaWidth) {
+    width: 100px;
+    height: 100px;
+    margin: 10px;
+  }
 
   &:before,
   &:after {
@@ -27,6 +33,10 @@ $depth: 0px;
     height: $size;
     border-radius: 30px 30px 30px 30px;
     transform: translateZ(-$depth);
+    @media screen and (max-width: $mediaWidth) {
+      width: 100px;
+      height: 100px;
+    }
   }
 
   &:before,
