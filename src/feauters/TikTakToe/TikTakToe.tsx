@@ -201,7 +201,7 @@ const TikTakToe = () => {
 
     return (
         <div className={s.tikTakToeContainer}>
-            <BackToMainMenu/>
+            <BackToMainMenu ws={ws}/>
             <Settings onClick={toggleSettingsGame}/>
             <Timer time={30} onTimerEnd={() => timeIsOver(userId, ws!, userInfo!)} myMove={!myMove}/>
             <GameStatus gameStatus={gameStatus}/>

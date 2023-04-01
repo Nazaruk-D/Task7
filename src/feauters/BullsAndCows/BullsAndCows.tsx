@@ -230,7 +230,7 @@ const BullsAndCows = () => {
 
     return (
         <div className={s.bullsAndCowsContainer}>
-            <BackToMainMenu/>
+            <BackToMainMenu ws={ws}/>
             <Settings onClick={toggleSettingsGame}/>
             <Board onClick={handleClick}
                    myMove={myMove}
