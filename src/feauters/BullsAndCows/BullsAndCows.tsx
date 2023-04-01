@@ -123,8 +123,8 @@ const BullsAndCows = () => {
 
     useEffect(() => {
         if (!ws) {
-            const socket = io('http://localhost:8080');
-            // const socket = io('wss://task7-9809.onrender.com');
+            // const socket = io('http://localhost:8080');
+            const socket = io('wss://task7-9809.onrender.com');
             setWs(socket);
         }
         return () => {
@@ -162,7 +162,7 @@ const BullsAndCows = () => {
             });
 
             ws.on('join-game-failed', (data: any) => {
-                setGameStatus(`Join game failed, ${data.gameId}`)
+                setGameStatus(`Join game failed, ${data}`)
             });
             ws.on('game-preparation', (data: any) => {
                 setMyMove(true)
