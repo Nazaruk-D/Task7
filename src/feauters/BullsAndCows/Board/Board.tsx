@@ -76,16 +76,33 @@ const Board: React.FC<BoardProps> = ({
         },
     })
 
+    // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    //     const input = e.target as HTMLInputElement;
+    //     if (+e.key >= 0 && +e.key <= 9) {
+    //         formik.setFieldValue(input.name, e.key);
+    //         const nextInput = input.nextElementSibling as HTMLInputElement | null;
+    //         if (nextInput) {
+    //             nextInput.focus();
+    //         }
+    //         e.preventDefault();
+    //     }
+    // };
+
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const input = e.target as HTMLInputElement;
-        if (+e.key >= 0 && +e.key <= 9) {
-            formik.setFieldValue(input.name, e.key);
-            const nextInput = input.nextElementSibling as HTMLInputElement | null;
-            if (nextInput) {
-                nextInput.focus();
-            }
+        const keyCode = e.keyCode || e.which;
+        const keyValue = String.fromCharCode(keyCode);
+        const regex = /^[0-9]*$/;
+        if (!regex.test(keyValue)) {
             e.preventDefault();
+            return false;
         }
+        formik.setFieldValue(input.name, keyValue);
+        const nextInput = input.nextElementSibling as HTMLInputElement | null;
+        if (nextInput) {
+            nextInput.focus();
+        }
+        e.preventDefault();
     };
 
     return (

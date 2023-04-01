@@ -8,7 +8,7 @@ type OpponentNamePropsType = {
 const OpponentName: FC<OpponentNamePropsType> = ({opponentName}) => {
     return (
         <div>
-            {opponentName && <div className={s.opponentName}>Your opponent: {opponentName}</div>}
+            {opponentName && <div className={s.opponentName}>Your opponent: <span className={s.name}>{opponentName}</span></div>}
         </div>
     )
 };

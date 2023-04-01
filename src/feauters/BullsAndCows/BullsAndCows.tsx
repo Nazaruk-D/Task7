@@ -17,6 +17,7 @@ import {startGameHandler} from "../../utils/startGameHandler";
 import {setUserId} from "../../store/reducers/app-reducer";
 import Timer from "../../common/component/Timer/Timer";
 import OpponentName from "../../common/component/OpponentName/OpponentName";
+import YourNumber from "../../common/component/YourNumber/YourNumber";
 
 export type HistoryItemType = {
     squares: number[] | null[];
@@ -249,7 +250,7 @@ const BullsAndCows = () => {
                                  opponentMoves={opponentMoves}
             />
             <OpponentName opponentName={opponentName}/>
-            {yourNumber && <div className={s.yourNumber}>Your number: {yourNumber}</div>}
+            <YourNumber yourNumber={yourNumber}/>
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame} onChangeHandler={onChangeHandler}/>}
         </div>
     );

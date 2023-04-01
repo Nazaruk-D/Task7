@@ -1,18 +1,18 @@
 @import "../../../common/styles/mixin";
 @import "../../../common/styles/variables";
 
-.opponentName {
+.yourNumber {
   @include text(16px, 16px, 600);
   color: $textColor;
   position: absolute;
-  left: 50px;
+  right: 50px;
   bottom: 50px;
   @media screen and (max-width: $mediaWidth) {
-    left: 20px;
-    bottom: 20px;
+    right: 30px;
+    bottom: 21px;
   }
 
-  .name{
+  .number {
     color: $secondMainColor;
   }
 }
