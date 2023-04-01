@@ -4,10 +4,10 @@
 .settingsContainer {
   @include flex(column, flex-start, center, wrap);
   width: 40%;
-  height: 40%;
+  height: 45%;
   @media screen and (max-width: $mediaWidth) {
     width: 100%;
-    height: 30%;
+    height: 50%;
   }
 
   .statisticsBlock {
@@ -18,21 +18,38 @@
     .myMoves {
       @include flex(column, flex-start, center, wrap);
       width: 50%;
+      @media screen and (max-width: $mediaWidth) {
+        @include flex(column, flex-start, flex-start, wrap);
+        padding-left: 10px;
+        box-sizing: border-box;
+      }
     }
 
     .opponentMoves {
       @include flex(column, flex-start, center, wrap);
       width: 50%;
+      @media screen and (max-width: $mediaWidth) {
+        @include flex(column, flex-start, flex-start, wrap);
+        padding-left: 10px;
+        box-sizing: border-box;
+      }
     }
 
     .title {
       @include text(18px, 18px, 600);
       color: $textColor;
+      @media screen and (max-width: $mediaWidth) {
+        margin: 5px;
+      }
     }
 
     .result {
       @include text(16px, 20px, 500);
       color: $textColor;
+      @media screen and (max-width: $mediaWidth) {
+        @include text(14px, 16px, 500);
+        margin: 5px;
+      }
     }
 
     .number {

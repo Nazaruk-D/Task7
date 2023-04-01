@@ -20,6 +20,7 @@ import Timer from "../../common/component/Timer/Timer";
 import OpponentName from "../../common/component/OpponentName/OpponentName";
 import opponentName from "../../common/component/OpponentName/OpponentName";
 import {timeIsOver} from "../../utils/timeIsOver";
+import {RulesType} from "../../common/types/RulesType";
 
 
 const TikTakToe = () => {
@@ -201,6 +202,18 @@ const TikTakToe = () => {
         if (!userName) navigate(routes.login)
     }, [userName, navigate])
 
+    const rules: RulesType = {
+        title: "Tic Tac Toe is a two-player game played on a 3x3 square grid.",
+        enumRules: [
+            "Players take turns placing their symbols (one player places Xs, the other places Os) on empty squares on the grid.",
+            "The player who places Xs goes first.",
+            "The goal of the game is to get three of your symbols in a row (horizontally, vertically, or diagonally) or to fill all the squares on the grid without getting three in a row.",
+            "If a player succeeds in getting three symbols in a row, they win the game.",
+            "If all the squares are filled and no player has three in a row, the game is a tie.",
+            "The player who first gets three symbols in a row or fills all the squares on the grid is declared the winner."
+        ]
+    }
+
     return (
         <div className={s.tikTakToeContainer}>
             <BackToMainMenu ws={ws}/>
@@ -221,7 +234,9 @@ const TikTakToe = () => {
             <OpponentName opponentName={opponentName}/>
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame}
                                            hide={toggleSettingsGame}
-                                           onChangeHandler={onChangeHandler}/>}
+                                           onChangeHandler={onChangeHandler}
+                                            rules={rules}
+            />}
         </div>
     );
 };

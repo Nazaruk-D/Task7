@@ -76,18 +76,6 @@ const Board: React.FC<BoardProps> = ({
         },
     })
 
-    // const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    //     const input = e.target as HTMLInputElement;
-    //     if (+e.key >= 0 && +e.key <= 9) {
-    //         formik.setFieldValue(input.name, e.key);
-    //         const nextInput = input.nextElementSibling as HTMLInputElement | null;
-    //         if (nextInput) {
-    //             nextInput.focus();
-    //         }
-    //         e.preventDefault();
-    //     }
-    // };
-
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const input = e.target as HTMLInputElement;
         const keyCode = e.keyCode || e.which;
@@ -184,7 +172,7 @@ const Board: React.FC<BoardProps> = ({
             </div>
             <div className={s.buttonBlock}>
                 {preparation && !newGame && <Button>Submit your number</Button>}
-                {myMove && !newGame && <Button>send numbers</Button>}
+                {myMove && !newGame && <Button className={s.sendNumber}>Send numbers</Button>}
                 {newGame && <Button onClick={onClickNewGameHandler}>New Game</Button>}
                 {!userInfo && <Button onClick={startGameHandler}>Start game</Button>}
             </div>

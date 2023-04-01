@@ -52,7 +52,9 @@ $depth: 0px;
   }
 
   .squareValue {
+    @include text(24px, 24px, 700);
     position: relative;
+    color: black;
     z-index: 1;
   }
 }

@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import s from "./BullsAndCows.module.scss"
 import {useNavigate} from "react-router-dom";
 import {routes} from "../../routes/routes";
@@ -15,9 +15,9 @@ import {useModal} from "../../common/component/SendFormModal/useModal";
 import SettingsGame from "../../common/component/SendFormModal/SettingsGame/SettingsGame";
 import {startGameHandler} from "../../utils/startGameHandler";
 import {setUserId} from "../../store/reducers/app-reducer";
-import Timer from "../../common/component/Timer/Timer";
 import OpponentName from "../../common/component/OpponentName/OpponentName";
 import YourNumber from "../../common/component/YourNumber/YourNumber";
+import {RulesType} from "../../common/types/RulesType";
 
 export type HistoryItemType = {
     squares: number[] | null[];
@@ -153,7 +153,7 @@ const BullsAndCows = () => {
             ws.on('start-game', (data: any) => {
                 setPreparation(true)
                 setUserInfo(data)
-                const opponentData = data.players.find( (p: UserType) => p.id !== userId)
+                const opponentData = data.players.find((p: UserType) => p.id !== userId)
                 setOpponentName(opponentData.name)
                 setGameStatus("Game start, Choose a number according to the rules of the game")
             });
@@ -229,6 +229,18 @@ const BullsAndCows = () => {
         }
     }
 
+    const rules: RulesType = {
+        title: "Bulls and Cows is a two-player game in which one player thinks of a four-digit number with no repeating digits, and the other player tries to guess the number.",
+        enumRules: [
+            "The player who thinks of the number selects a four-digit number with no repeating digits (for example, 4827).",
+            "The other player makes a guess and calls out a four-digit number.",
+            "The player who thought of the number responds with the number of \"bulls\" and \"cows\" in the guessed number. A bull is a digit in the right position, and a cow is a digit that is in the number, but in the wrong position.",
+            "The guessing player makes a new guess based on the feedback and continues the game until they correctly guess the number.",
+            "The player who correctly guesses the number first is the winner."
+        ],
+        example: "Let's say the player who thinks of the number chooses the number 4827. The guessing player offers the number 1234. The player who thought of the number responds that there are no correct digits in this number, so the number of bulls and cows is 0: \"0 bulls, 0 cows\". The guessing player makes a new guess and continues until they guess the number 4827."
+    }
+
     return (
         <div className={s.bullsAndCowsContainer}>
             <BackToMainMenu ws={ws}/>
@@ -251,7 +263,8 @@ const BullsAndCows = () => {
             />
             <OpponentName opponentName={opponentName}/>
             <YourNumber yourNumber={yourNumber}/>
-            {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame} onChangeHandler={onChangeHandler}/>}
+            {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame}
+                                           onChangeHandler={onChangeHandler} rules={rules}/>}
         </div>
     );
 };

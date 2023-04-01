@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
-import {RequestStatusType} from "../../enums/RequestStatusType";
+import {RequestStatusType} from "../../common/types/RequestStatusType";
 
 //
 // export const initializeAppTC = createAsyncThunk(('app/initializeApp'), async (param, {dispatch}) => {

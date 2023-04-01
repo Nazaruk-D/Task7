@@ -1,8 +1,10 @@
 @import './src/common/styles/mixin';
+@import './src/common/styles/variables';
 
 .titleBlock {
   @include flex(row, flex-start, center, nowrap);
   width: 100%;
+  height: 20%;
 
   .title {
     padding-left: 45px;
@@ -13,6 +15,7 @@
 
 .form {
   width: 100%;
+  height: 60%;
 
   .inputsBlock {
     @include flex(row, flex-start, flex-start, nowrap);
@@ -56,32 +59,63 @@
       }
     }
   }
-}
 
-
-.buttonBlock {
-  width: 100%;
-  padding: 0 45px;
-  box-sizing: border-box;
-
-  .submitButton {
+  .buttonBlock {
     width: 100%;
-    height: 40px;
-    border: 0;
-    border-radius: 4px;
-    background-color: rgba(22, 63, 246, 0.85);
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
-    margin-bottom: 30px;
+    padding: 0 45px;
+    box-sizing: border-box;
 
-    &:hover {
-      background-color: rgba(8, 41, 178, 0.85);
-    }
+    .submitButton {
+      width: 100%;
+      height: 40px;
+      border: 0;
+      border-radius: 4px;
+      background-color: rgba(22, 63, 246, 0.85);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+      margin-bottom: 30px;
 
-    &:disabled {
-      background-color: #9a9a9a;
-      cursor: unset;
+      &:hover {
+        background-color: rgba(8, 41, 178, 0.85);
+      }
+
+      &:disabled {
+        background-color: #9a9a9a;
+        cursor: unset;
+      }
     }
   }
 }
+
+.rules {
+  @include flex(column, flex-start, flex-start, nowrap);
+  padding: 0 40px 40px 40px;
+  box-sizing: border-box;
+  @media screen and (max-width: $mediaWidth) {
+    padding: 5px;
+  }
+
+  .title {
+    @include text(16px, 16px, 600);
+    color: $textColor;
+    margin-bottom: 10px;
+  }
+
+  .enums {
+    @include text(15px, 20px, 500);
+    color: $textColor;
+    margin-bottom: 10px;
+  }
+
+  .example {
+    @include text(16px, 17px, 500);
+    color: $textColor;
+    margin-bottom: 10px;
+    @media screen and (max-width: $mediaWidth) {
+      display: none;
+    }
+  }
+}
+
+
