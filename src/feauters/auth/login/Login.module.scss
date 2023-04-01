@@ -11,10 +11,17 @@
     width: 500px;
     height: 350px;
     background-color: #F4F4F4;
+    @media screen and (max-width: $mediaWidth) {
+      width: 350px;
+      height: 250px;
+    }
 
     .form {
       padding: 50px;
       box-sizing: border-box;
+      @media screen and (max-width: $mediaWidth) {
+        padding: 20px;
+      }
 
       .title {
         @include text(34px, 34px, 600);
