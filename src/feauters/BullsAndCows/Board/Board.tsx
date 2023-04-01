@@ -90,7 +90,7 @@ const Board: React.FC<BoardProps> = ({
 
     return (
         <form onSubmit={formik.handleSubmit} className={s.board}>
-            <Timer time={60} myMove={!myMove} onTimerEnd={() => timeIsOver(userId, ws!, userInfo!)}/>
+            <Timer time={5} myMove={!myMove} onTimerEnd={() => timeIsOver(userId, ws!, userInfo!)}/>
             <GameStatus gameStatus={gameStatus}/>
             <div className={s.boardRow}>
                 <input
@@ -166,7 +166,7 @@ const Board: React.FC<BoardProps> = ({
                     <div style={{color: "red"}}>{formik.errors.general}</div>}
             </div>
             <div className={s.buttonBlock}>
-                {preparation && <Button>Submit your number</Button>}
+                {preparation && !newGame && <Button>Submit your number</Button>}
                 {myMove && !newGame && <Button>send numbers</Button>}
                 {newGame && <Button onClick={onClickNewGameHandler}>New Game</Button>}
                 {!userInfo && <Button onClick={startGameHandler}>Start game</Button>}

@@ -55,12 +55,16 @@ const BullsAndCows = () => {
         setHistory([{squares: Array(4).fill(null), userMove: "", bulls: null, cows: null}])
         setUserInfo(null)
         setNewGame(false)
-        startGameHandler("bullsAndCows", userName, ws!)
         setYourNumber(null)
+        startGameHandler("bullsAndCows", userName, ws!)
     }
 
     const onChangeHandler = (value: string) => {
         if (value && ws) {
+            setHistory([{squares: Array(4).fill(null), userMove: "", bulls: null, cows: null}])
+            setUserInfo(null)
+            setNewGame(false)
+            setYourNumber(null)
             startGameHandler("bullsAndCows", userName, ws, Number(value))
         }
     }
@@ -108,6 +112,7 @@ const BullsAndCows = () => {
         }
         if (updatedInfo.winner) {
             setNewGame(true)
+            setMyMove(false)
             if (data.userMoveId !== userId) {
                 setGameStatus(`You win!`)
             } else {
@@ -175,6 +180,7 @@ const BullsAndCows = () => {
             });
             ws.on('game-over-timer', (data: any) => {
                 setNewGame(true)
+                setMyMove(false)
                 if (data.winner.id === userId) {
                     setGameStatus("You won on time")
                 } else {
@@ -219,7 +225,6 @@ const BullsAndCows = () => {
             ws.emit('game-preparation', data)
             setPreparation(false)
             setYourNumber(yourNumber)
-            console.log("setYourNumber: ", yourNumber)
         }
     }
 
