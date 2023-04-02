@@ -14,6 +14,4 @@ export enum WS {
     Update_State = "update-game-state",
     Game_Over = "game-over",
     Game_Preparation = "game-preparation",
-
-
 }

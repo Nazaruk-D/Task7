@@ -1,5 +1,5 @@
 import React from 'react';
-import s from "../ModalGeneralStyle.module.scss"
+import s from "./SettingsGame.module.scss"
 import Modal from "../Modal";
 import {useFormik} from "formik";
 import {RulesType} from "../../../types/RulesType";
@@ -13,7 +13,6 @@ type EditEmailModalPropType = {
 }
 
 const SettingsGame: React.FC<EditEmailModalPropType> = ({setModalActive, hide, onChangeHandler, rules}) => {
-
     const formik = useFormik({
         initialValues: {
             roomNumber: "",

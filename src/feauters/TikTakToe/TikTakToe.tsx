@@ -121,17 +121,6 @@ const TikTakToe = () => {
     }, [])
 
     useEffect(() => {
-        if (ws) {
-            ws.on(WS.Update_State, handleUpdateGameState);
-            ws.on(WS.Game_Over, handleUpdateGameState);
-            return () => {
-                ws.off(WS.Update_State, handleUpdateGameState);
-                ws.off(WS.Game_Over, handleUpdateGameState);
-            }
-        }
-    }, [handleUpdateGameState, ws]);
-
-    useEffect(() => {
         const handleConnect = () => {
             console.log('Connected to server');
             if (userName) {
@@ -211,6 +200,17 @@ const TikTakToe = () => {
             }
         };
     }, [ws, userName, history, userId]);
+
+    useEffect(() => {
+        if (ws) {
+            ws.on(WS.Update_State, handleUpdateGameState);
+            ws.on(WS.Game_Over, handleUpdateGameState);
+            return () => {
+                ws.off(WS.Update_State, handleUpdateGameState);
+                ws.off(WS.Game_Over, handleUpdateGameState);
+            }
+        }
+    }, [handleUpdateGameState, ws]);
 
     useEffect(() => {
         if (!userName) navigate(routes.login)

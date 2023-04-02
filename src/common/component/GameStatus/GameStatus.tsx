@@ -1,5 +1,7 @@
 import React, {FC} from 'react';
 import s from "./GameStatus.module.scss"
+
+
 type GameStatusPropsType = {
     gameStatus: string
 }

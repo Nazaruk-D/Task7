@@ -35,7 +35,6 @@ const Login = () => {
         },
     })
 
-
     useEffect(() => {
         if (userName) navigate(routes.mainPage)
     }, [userName, navigate])

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import s from './Timer.module.scss';
 
 type TimerPropsType = {
@@ -7,7 +7,7 @@ type TimerPropsType = {
     myMove: boolean;
 }
 
-const Timer: React.FC<TimerPropsType> = ({ time, onTimerEnd, myMove }) => {
+const Timer: React.FC<TimerPropsType> = ({time, onTimerEnd, myMove}) => {
     const [secondsLeft, setSecondsLeft] = useState(time);
     let intervalId: NodeJS.Timeout;
 

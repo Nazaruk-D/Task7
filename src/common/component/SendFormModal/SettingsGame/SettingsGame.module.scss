@@ -1,5 +1,5 @@
-@import './src/common/styles/mixin';
-@import './src/common/styles/variables';
+@import '../../../styles/mixin';
+@import '../../../styles/variables';
 
 .titleBlock {
   @include flex(row, flex-start, center, nowrap);

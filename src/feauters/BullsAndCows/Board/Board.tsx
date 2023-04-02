@@ -9,11 +9,11 @@ import {timeIsOver} from "../../../utils/timeIsOver";
 import {Socket} from "socket.io-client";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
 
-interface BoardProps {
+type BoardPropsType = {
     onClick: (digits: number[]) => void;
     myMove: boolean
-    newGame: any,
-    preparation: any
+    newGame: boolean,
+    preparation: boolean
     preparationGameHandler: (digits: number[]) => void
     onClickNewGameHandler: () => void
     startGameHandler: () => void
@@ -23,7 +23,7 @@ interface BoardProps {
     ws: Socket<DefaultEventsMap, DefaultEventsMap>
 }
 
-const Board: React.FC<BoardProps> = ({
+const Board: React.FC<BoardPropsType> = ({
                                          gameStatus,
                                          preparationGameHandler,
                                          onClick,

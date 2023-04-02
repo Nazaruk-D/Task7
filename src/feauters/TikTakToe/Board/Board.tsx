@@ -3,6 +3,7 @@ import s from "./Board.module.scss"
 import Square from "../Square/Square";
 import {Socket} from "socket.io-client";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
+import {UserInfoType} from "../../../common/types/UserTypes";
 
 interface BoardProps {
     squares: (string | null)[];
@@ -10,7 +11,7 @@ interface BoardProps {
     status?: string
     ws: Socket<DefaultEventsMap, DefaultEventsMap> | null
     userName: string
-    userInfo: any
+    userInfo: UserInfoType | null
 }
 
 const Board: React.FC<BoardProps> = ({squares, onClick, status, ws, userName, userInfo}) => {
