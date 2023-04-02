@@ -17,7 +17,10 @@ import {startGameHandler} from "../../utils/startGameHandler";
 import {setUserId} from "../../store/reducers/app-reducer";
 import OpponentName from "../../common/component/OpponentName/OpponentName";
 import YourNumber from "../../common/component/YourNumber/YourNumber";
-import {RulesType} from "../../common/types/RulesType";
+import {Rules} from "../../enums/Rules";
+import {Game} from "../../enums/GameNames";
+import {Status} from "../../enums/GameStatus";
+import {WS} from "../../enums/Ws";
 
 export type HistoryItemType = {
     squares: number[] | null[];
@@ -42,7 +45,7 @@ const BullsAndCows = () => {
     const [myMove, setMyMove] = useState(false);
     const [ws, setWs] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
-    const [gameStatus, setGameStatus] = useState("You can select a room number in the settings to play with a friend.")
+    const [gameStatus, setGameStatus] = useState<string>(Status.Starting_Value)
     const [newGame, setNewGame] = useState(false)
     const [opponentName, setOpponentName] = useState("")
     const [preparation, setPreparation] = useState(false)
@@ -57,7 +60,7 @@ const BullsAndCows = () => {
         setUserInfo(null)
         setNewGame(false)
         setYourNumber(null)
-        startGameHandler("bullsAndCows", userName, ws!)
+        startGameHandler(Game.Bulls_And_Cows, userName, ws!)
     }
 
     const onChangeHandler = (value: string) => {
@@ -66,7 +69,7 @@ const BullsAndCows = () => {
             setUserInfo(null)
             setNewGame(false)
             setYourNumber(null)
-            startGameHandler("bullsAndCows", userName, ws, Number(value))
+            startGameHandler(Game.Bulls_And_Cows, userName, ws, Number(value))
         }
     }
 
@@ -79,7 +82,7 @@ const BullsAndCows = () => {
                 board: digits,
                 playerId: userInfo.playerId
             }
-            ws.emit('make-move', data)
+            ws.emit(WS.Make_Move, data)
         }
     };
 
@@ -105,19 +108,19 @@ const BullsAndCows = () => {
             setHistory(prevHistory => [...prevHistory, newInfo]);
             if (data.userMoveId !== userId) {
                 setMyMove(false)
-                setGameStatus("Opponent try")
+                setGameStatus(Status.Opponent_Turn)
             } else {
                 setMyMove(true)
-                setGameStatus('Your try')
+                setGameStatus(Status.Your_Turn)
             }
         }
         if (updatedInfo.winner) {
             setNewGame(true)
             setMyMove(false)
             if (data.userMoveId !== userId) {
-                data.message ? setGameStatus(`You win, ${data.message}`) : setGameStatus(`You win!`)
+                data.message ? setGameStatus(`${Status.Win}, ${data.message}`) : setGameStatus(`${Status.Win}!`)
             } else {
-                setGameStatus(`You lose`)
+                setGameStatus(`${Status.Lose}`)
             }
         }
     }, [userInfo, setUserInfo, setHistory, userId]);
@@ -135,57 +138,57 @@ const BullsAndCows = () => {
 
     useEffect(() => {
         if (ws) {
-            ws.on('connect', () => {
+            ws.on(WS.Connect, () => {
                 console.log('Connected to server');
                 if (userName) {
-                    ws.emit('set-name', userName)
+                    ws.emit(WS.Set_Name, userName)
                 }
             });
-            ws.on('user-id', (data: string) => {
+            ws.on(WS.User_ID, (data: string) => {
                 dispatch(setUserId(data))
             });
-            ws.on('message', (data: any) => {
+            ws.on(WS.Message, (data: any) => {
                 console.log('Message received from server:', data);
             });
-            ws.on('disconnect', () => {
+            ws.on(WS.Disconnect, () => {
                 console.log('Disconnected from server');
             });
-            ws.on('start-game', (data: any) => {
+            ws.on(WS.Start_Game, (data: any) => {
                 setPreparation(true)
                 setUserInfo(data)
                 const opponentData = data.players.find((p: UserType) => p.id !== userId)
                 setOpponentName(opponentData.name)
-                setGameStatus("Game start, Choose a number according to the rules of the game")
+                setGameStatus(`${Status.Start}, ${Status.Choose_A_Number}`)
             });
-            ws.on('join-game-success', (data: any) => {
-                setGameStatus(`Successfully connected to the game, room number ${data.gameId}`)
+            ws.on(WS.Join_Success, (data: any) => {
+                setGameStatus(`${Status.Successfully_Connect} ${data.gameId}`)
                 setUserInfo(data)
             });
 
-            ws.on('join-game-failed', (data: any) => {
-                setGameStatus(`Join game failed, ${data}`)
+            ws.on(WS.Join_Failed, (data: any) => {
+                setGameStatus(`${Status.Join_Failed}, ${data}`)
             });
-            ws.on('game-preparation', (data: any) => {
+            ws.on(WS.Preparation, (data: any) => {
                 setMyMove(true)
-                setGameStatus("Choose your number")
+                setGameStatus(Status.Choose_Number)
             });
-            ws.on('start-game-move', (data: any) => {
+            ws.on(WS.Start_Move, (data: any) => {
                 setUserInfo(data)
                 if (data.userMoveId === userId) {
                     setMyMove(true)
-                    setGameStatus("Game start, your turn")
+                    setGameStatus(`${Status.Start}, ${Status.Your_Turn}`)
                 } else {
                     setMyMove(false)
-                    setGameStatus('Game start, opponent turn')
+                    setGameStatus(`${Status.Start}, ${Status.Opponent_Turn}`)
                 }
             });
-            ws.on('game-over-timer', (data: any) => {
+            ws.on(WS.Game_Over_Timer, (data: any) => {
                 setNewGame(true)
                 setMyMove(false)
                 if (data.winner.id === userId) {
-                    setGameStatus("You won on time")
+                    setGameStatus(Status.Won_On_Time)
                 } else {
-                    setGameStatus("Time is up, you're out of time")
+                    setGameStatus(Status.Lost_On_Time)
                 }
             });
         }
@@ -193,18 +196,18 @@ const BullsAndCows = () => {
 
     useEffect(() => {
         if (ws) {
-            ws.on('check-number-result', handleUpdateGameState);
+            ws.on(WS.Check_Number_Result, handleUpdateGameState);
             return () => {
-                ws.off('check-number-result', handleUpdateGameState);
+                ws.off(WS.Check_Number_Result, handleUpdateGameState);
             }
         }
     }, [handleUpdateGameState, ws]);
 
     useEffect(() => {
         if (ws) {
-            ws.on('game-over', handleUpdateGameState);
+            ws.on(WS.Game_Over, handleUpdateGameState);
             return () => {
-                ws.off('game-over', handleUpdateGameState);
+                ws.off(WS.Game_Over, handleUpdateGameState);
             }
         }
     }, [handleUpdateGameState, ws]);
@@ -223,22 +226,10 @@ const BullsAndCows = () => {
                 playerName: userName,
                 number: yourNumber
             };
-            ws.emit('game-preparation', data)
+            ws.emit(WS.Game_Preparation, data)
             setPreparation(false)
             setYourNumber(yourNumber)
         }
-    }
-
-    const rules: RulesType = {
-        title: "Bulls and Cows is a two-player game in which one player thinks of a four-digit number with no repeating digits, and the other player tries to guess the number.",
-        enumRules: [
-            "The player who thinks of the number selects a four-digit number with no repeating digits (for example, 4827).",
-            "The other player makes a guess and calls out a four-digit number.",
-            "The player who thought of the number responds with the number of \"bulls\" and \"cows\" in the guessed number. A bull is a digit in the right position, and a cow is a digit that is in the number, but in the wrong position.",
-            "The guessing player makes a new guess based on the feedback and continues the game until they correctly guess the number.",
-            "The player who correctly guesses the number first is the winner."
-        ],
-        example: "Let's say the player who thinks of the number chooses the number 4827. The guessing player offers the number 1234. The player who thought of the number responds that there are no correct digits in this number, so the number of bulls and cows is 0: \"0 bulls, 0 cows\". The guessing player makes a new guess and continues until they guess the number 4827."
     }
 
     return (
@@ -251,7 +242,7 @@ const BullsAndCows = () => {
                    preparation={preparation}
                    preparationGameHandler={preparationGameHandler}
                    onClickNewGameHandler={onClickNewGameHandler}
-                   startGameHandler={() => startGameHandler("bullsAndCows", userName, ws!)}
+                   startGameHandler={() => startGameHandler(Game.Bulls_And_Cows, userName, ws!)}
                    userInfo={userInfo}
                    gameStatus={gameStatus}
                    ws={ws!}
@@ -264,7 +255,7 @@ const BullsAndCows = () => {
             <OpponentName opponentName={opponentName}/>
             <YourNumber yourNumber={yourNumber}/>
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame}
-                                           onChangeHandler={onChangeHandler} rules={rules}/>}
+                                           onChangeHandler={onChangeHandler} rules={Rules[Game.Bulls_And_Cows]}/>}
         </div>
     );
 };

@@ -18,9 +18,11 @@ import {setUserId} from "../../store/reducers/app-reducer";
 import GameStatus from "../../common/component/GameStatus/GameStatus";
 import Timer from "../../common/component/Timer/Timer";
 import OpponentName from "../../common/component/OpponentName/OpponentName";
-import opponentName from "../../common/component/OpponentName/OpponentName";
 import {timeIsOver} from "../../utils/timeIsOver";
-import {RulesType} from "../../common/types/RulesType";
+import {Status} from "../../enums/GameStatus";
+import {Game} from "../../enums/GameNames";
+import {Rules} from "../../enums/Rules";
+import {WS} from "../../enums/Ws";
 
 
 const TikTakToe = () => {
@@ -34,7 +36,7 @@ const TikTakToe = () => {
     const [xIsNext, setXIsNext] = useState(true);
     const [ws, setWs] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
-    const [gameStatus, setGameStatus] = useState("You can select a room number in the settings to play with a friend.")
+    const [gameStatus, setGameStatus] = useState<string>(Status.Starting_Value)
     const [newGame, setNewGame] = useState(false)
     const [opponentName, setOpponentName] = useState("")
     const [myMove, setMyMove] = useState(false);
@@ -47,7 +49,7 @@ const TikTakToe = () => {
         setStepNumber(0)
         setUserInfo(null)
         setNewGame(false)
-        startGameHandler("tikTakToe", userName, ws!)
+        startGameHandler(Game.Tik_Tak_Toe, userName, ws!)
     }
 
     const onChangeHandler = (value: string) => {
@@ -56,7 +58,7 @@ const TikTakToe = () => {
             setStepNumber(0)
             setUserInfo(null)
             setNewGame(false)
-            startGameHandler("tikTakToe", userName, ws, Number(value))
+            startGameHandler(Game.Tik_Tak_Toe, userName, ws, Number(value))
         }
     }
 
@@ -75,7 +77,7 @@ const TikTakToe = () => {
                     stepNumber: stepNumber,
                     playerId: userInfo.playerId
                 }
-                ws.emit('make-move', data)
+                ws.emit(WS.Make_Move, data)
             }
         }
     };
@@ -98,21 +100,21 @@ const TikTakToe = () => {
             if (data.userMoveId === userId) {
                 setXIsNext(!xIsNext);
                 setMyMove(true)
-                setGameStatus("Your turn")
+                setGameStatus(Status.Your_Turn)
             } else {
                 setMyMove(false)
-                setGameStatus("Opponent turn")
+                setGameStatus(Status.Opponent_Turn)
             }
         }
         if (updatedInfo.winner) {
             setNewGame(true)
             setMyMove(false)
-            if (data.winner === "Draw") {
-                setGameStatus(`Draw!`)
+            if (data.winner === Status.Draw) {
+                setGameStatus(Status.Draw)
             } else if (data.userMoveId !== userId) {
-                data.message ? setGameStatus(`You win, ${data.message}`) : setGameStatus(`You win!`)
+                data.message ? setGameStatus(`${Status.Win}, ${data.message}`) : setGameStatus(`${Status.Win}!`)
             } else {
-                setGameStatus(`You lose`)
+                setGameStatus(Status.Lose)
             }
         }
     }, [userInfo, setUserInfo, setHistory, setStepNumber, userId, xIsNext]);
@@ -131,49 +133,49 @@ const TikTakToe = () => {
 
     useEffect(() => {
         if (ws) {
-            ws.on('connect', () => {
+            ws.on(WS.Connect, () => {
                 console.log('Connected to server');
                 if (userName) {
-                    ws.emit('set-name', userName)
+                    ws.emit(WS.Set_Name, userName)
                 }
             });
-            ws.on('user-id', (data: string) => {
+            ws.on(WS.User_ID, (data: string) => {
                 dispatch(setUserId(data))
             });
-            ws.on('message', (data: any) => {
+            ws.on(WS.Message, (data: any) => {
                 console.log('Message received from server:', data);
             });
             ws.on('disconnect', () => {
                 console.log('Disconnected from server');
             });
-            ws.on('join-game-success', (data: any) => {
-                setGameStatus(`Successfully connected to the game, room number ${data.gameId}`)
+            ws.on(WS.Join_Success, (data: any) => {
+                setGameStatus(`${Status.Successfully_Connect} ${data.gameId}`)
                 setUserInfo(data)
             });
 
-            ws.on('join-game-failed', (data: any) => {
+            ws.on(WS.Join_Failed, (data: any) => {
                 console.log(data)
-                setGameStatus(`Join game failed, ${data}`)
+                setGameStatus(`${Status.Join_Failed}, ${data}`)
             });
-            ws.on('start-game', (data: any) => {
+            ws.on(WS.Start_Game, (data: any) => {
                 setUserInfo(data)
                 const opponentData = data.players.find( (p: UserType) => p.id !== userId)
                 setOpponentName(opponentData.name)
                 if (data.userMoveId === userId) {
                     setMyMove(true)
-                    setGameStatus("Game start, your turn")
+                    setGameStatus(`${Status.Start}, ${Status.Your_Turn}`)
                 } else {
                     setMyMove(false)
-                    setGameStatus('Game start, opponent turn')
+                    setGameStatus(`${Status.Start}, ${Status.Opponent_Turn}`)
                 }
             });
-            ws.on('game-over-timer', (data: any) => {
+            ws.on(WS.Game_Over_Timer, (data: any) => {
                 setNewGame(true)
                 setMyMove(false)
                 if (data.winner.id === userId) {
-                    setGameStatus("You won on time")
+                    setGameStatus(Status.Won_On_Time)
                 } else {
-                    setGameStatus("Time is up, you're out of time")
+                    setGameStatus(Status.Lost_On_Time)
                 }
             });
         }
@@ -181,18 +183,18 @@ const TikTakToe = () => {
 
     useEffect(() => {
         if (ws) {
-            ws.on('update-game-state', handleUpdateGameState);
+            ws.on(WS.Update_State, handleUpdateGameState);
             return () => {
-                ws.off('update-game-state', handleUpdateGameState);
+                ws.off(WS.Update_State, handleUpdateGameState);
             }
         }
     }, [handleUpdateGameState, ws]);
 
     useEffect(() => {
         if (ws) {
-            ws.on('game-over', handleUpdateGameState);
+            ws.on(WS.Game_Over, handleUpdateGameState);
             return () => {
-                ws.off('game-over', handleUpdateGameState);
+                ws.off(WS.Game_Over, handleUpdateGameState);
             }
         }
     }, [handleUpdateGameState, ws]);
@@ -201,18 +203,6 @@ const TikTakToe = () => {
     useEffect(() => {
         if (!userName) navigate(routes.login)
     }, [userName, navigate])
-
-    const rules: RulesType = {
-        title: "Tic Tac Toe is a two-player game played on a 3x3 square grid.",
-        enumRules: [
-            "Players take turns placing their symbols (one player places Xs, the other places Os) on empty squares on the grid.",
-            "The player who places Xs goes first.",
-            "The goal of the game is to get three of your symbols in a row (horizontally, vertically, or diagonally) or to fill all the squares on the grid without getting three in a row.",
-            "If a player succeeds in getting three symbols in a row, they win the game.",
-            "If all the squares are filled and no player has three in a row, the game is a tie.",
-            "The player who first gets three symbols in a row or fills all the squares on the grid is declared the winner."
-        ]
-    }
 
     return (
         <div className={s.tikTakToeContainer}>
@@ -229,13 +219,13 @@ const TikTakToe = () => {
             <SettingsTikTakToe newGame={newGame}
                                userInfo={userInfo}
                                gameStatus={gameStatus}
-                               startGameHandler={() => startGameHandler("tikTakToe", userName, ws!)}
+                               startGameHandler={() => startGameHandler(Game.Tik_Tak_Toe, userName, ws!)}
                                onClickNewGameHandler={onClickNewGameHandler}/>
             <OpponentName opponentName={opponentName}/>
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame}
                                            hide={toggleSettingsGame}
                                            onChangeHandler={onChangeHandler}
-                                            rules={rules}
+                                            rules={Rules[Game.Tik_Tak_Toe]}
             />}
         </div>
     );
