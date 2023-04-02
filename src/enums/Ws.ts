@@ -1,9 +1,7 @@
 export enum WS {
     Connect = "connect",
-    Disconnect = "disconnect",
     Set_Name = "set-name",
     User_ID = "user-id",
-    Message = "message",
     Start_Game = "start-game",
     Join_Game = "join-game",
     Join_Success = "join-game-success",

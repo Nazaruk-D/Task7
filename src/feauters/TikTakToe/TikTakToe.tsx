@@ -26,10 +26,10 @@ import {WS} from "../../enums/Ws";
 
 
 const TikTakToe = () => {
-    const userName = useAppSelector(selectorNameUser)
-    const userId = useAppSelector(selectorUserId)
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
+    const userName = useAppSelector(selectorNameUser)
+    const userId = useAppSelector(selectorUserId)
 
     const [history, setHistory] = useState<string[] | any[]>([{squares: Array(9).fill(null)}]);
     const [stepNumber, setStepNumber] = useState(0);
@@ -52,7 +52,7 @@ const TikTakToe = () => {
         startGameHandler(Game.Tik_Tak_Toe, userName, ws!)
     }
 
-    const onChangeHandler = (value: string) => {
+    const onChangeRoomNumber = (value: string) => {
         if (value && ws) {
             setHistory([{squares: Array(9).fill(null)}])
             setStepNumber(0)
@@ -62,7 +62,7 @@ const TikTakToe = () => {
         }
     }
 
-    const handleClick = (i: number) => {
+    const onMakeMove = (i: number) => {
         if (ws && userInfo && userInfo.userMoveId === userId && !newGame) {
             const newHistory = history.slice(0, stepNumber + 1);
             const currentSquares = newHistory[newHistory.length - 1].squares.slice();
@@ -112,7 +112,6 @@ const TikTakToe = () => {
 
     useEffect(() => {
         if (!ws) {
-            // const socket = io('http://localhost:8080');
             const socket = io('wss://task7-9809.onrender.com');
             setWs(socket);
         }
@@ -121,69 +120,97 @@ const TikTakToe = () => {
         };
     }, [])
 
-
-    useEffect(() => {
-        if (ws) {
-            ws.on(WS.Connect, () => {
-                console.log('Connected to server');
-                if (userName) {
-                    ws.emit(WS.Set_Name, userName)
-                }
-            });
-            ws.on(WS.User_ID, (data: string) => {
-                dispatch(setUserId(data))
-            });
-            ws.on(WS.Join_Success, (data: UserInfoType) => {
-                setGameStatus(`${Status.Successfully_Connect} ${data.gameId}`)
-                setUserInfo(data)
-            });
-
-            ws.on(WS.Join_Failed, (data: string) => {
-                console.log(data)
-                setGameStatus(`${Status.Join_Failed}, ${data}`)
-            });
-            ws.on(WS.Start_Game, (data: UserInfoType) => {
-                setUserInfo(data)
-                const opponentData = data.players!.find( (p: UserType) => p.id !== userId)
-                setOpponentName(opponentData!.name)
-                if (data.userMoveId === userId) {
-                    setMyMove(true)
-                    setGameStatus(`${Status.Start}, ${Status.Your_Turn}`)
-                } else {
-                    setMyMove(false)
-                    setGameStatus(`${Status.Start}, ${Status.Opponent_Turn}`)
-                }
-            });
-            ws.on(WS.Game_Over_Timer, (data: {winner: UserType}) => {
-                setNewGame(true)
-                setMyMove(false)
-                if (data.winner.id === userId) {
-                    setGameStatus(Status.Won_On_Time)
-                } else {
-                    setGameStatus(Status.Lost_On_Time)
-                }
-            });
-        }
-    }, [ws, userName, history, userId]);
-
     useEffect(() => {
         if (ws) {
             ws.on(WS.Update_State, handleUpdateGameState);
-            return () => {
-                ws.off(WS.Update_State, handleUpdateGameState);
-            }
-        }
-    }, [handleUpdateGameState, ws]);
-
-    useEffect(() => {
-        if (ws) {
             ws.on(WS.Game_Over, handleUpdateGameState);
             return () => {
+                ws.off(WS.Update_State, handleUpdateGameState);
                 ws.off(WS.Game_Over, handleUpdateGameState);
             }
         }
     }, [handleUpdateGameState, ws]);
 
+    useEffect(() => {
+        const handleConnect = () => {
+            console.log('Connected to server');
+            if (userName) {
+                ws!.emit(WS.Set_Name, userName)
+            }
+        };
+
+        const handleUserId = (data: string) => {
+            dispatch(setUserId(data));
+        };
+
+        const handleJoinSuccess = (data: UserInfoType) => {
+            setGameStatus(`${Status.Successfully_Connect} ${data.gameId}`)
+            setUserInfo(data)
+        };
+
+        const handleJoinFailed = (data: string) => {
+            console.log(data)
+            setGameStatus(`${Status.Join_Failed}, ${data}`)
+        };
+
+        const handleStartGame = (data: UserInfoType) => {
+            setUserInfo(data)
+            const opponentData = data.players!.find((p: UserType) => p.id !== userId)
+            setOpponentName(opponentData!.name)
+            if (data.userMoveId === userId) {
+                setMyMove(true)
+                setGameStatus(`${Status.Start}, ${Status.Your_Turn}`)
+            } else {
+                setMyMove(false)
+                setGameStatus(`${Status.Start}, ${Status.Opponent_Turn}`)
+            }
+        };
+
+        const handleGameOverTimer = (data: { winner: UserType }) => {
+            setNewGame(true)
+            setMyMove(false)
+            if (data.winner.id === userId) {
+                setGameStatus(Status.Won_On_Time)
+            } else {
+                setGameStatus(Status.Lost_On_Time)
+            }
+        };
+
+        const handleUpdateGameState = (data: UserInfoType) => {
+            setUserInfo(data)
+            if (data.userMoveId === userId) {
+                setMyMove(true)
+                setGameStatus(Status.Your_Turn)
+            } else {
+                setMyMove(false)
+                setGameStatus(Status.Opponent_Turn)
+            }
+        };
+
+        if (ws) {
+            ws.on(WS.Connect, handleConnect);
+            ws.on(WS.User_ID, handleUserId);
+            ws.on(WS.Join_Success, handleJoinSuccess);
+            ws.on(WS.Join_Failed, handleJoinFailed);
+            ws.on(WS.Start_Game, handleStartGame);
+            ws.on(WS.Game_Over_Timer, handleGameOverTimer)
+            ws.on(WS.Update_State, handleUpdateGameState);
+            ws.on(WS.Game_Over, handleUpdateGameState);
+        }
+
+        return () => {
+            if (ws) {
+                ws.off(WS.Connect, handleConnect);
+                ws.off(WS.User_ID, handleUserId);
+                ws.off(WS.Join_Success, handleJoinSuccess);
+                ws.off(WS.Join_Failed, handleJoinFailed);
+                ws.off(WS.Start_Game, handleStartGame);
+                ws.off(WS.Game_Over_Timer, handleGameOverTimer);
+                ws.off(WS.Update_State, handleUpdateGameState);
+                ws.off(WS.Game_Over, handleUpdateGameState);
+            }
+        };
+    }, [ws, userName, history, userId]);
 
     useEffect(() => {
         if (!userName) navigate(routes.login)
@@ -196,7 +223,7 @@ const TikTakToe = () => {
             <Timer time={30} onTimerEnd={() => timeIsOver(userId, ws!, userInfo!)} myMove={!myMove}/>
             <GameStatus gameStatus={gameStatus}/>
             <Board squares={current.squares}
-                   onClick={handleClick}
+                   onClick={onMakeMove}
                    ws={ws}
                    userName={userName}
                    userInfo={userInfo}
@@ -209,8 +236,8 @@ const TikTakToe = () => {
             <OpponentName opponentName={opponentName}/>
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame}
                                            hide={toggleSettingsGame}
-                                           onChangeHandler={onChangeHandler}
-                                            rules={Rules[Game.Tik_Tak_Toe]}
+                                           onChangeHandler={onChangeRoomNumber}
+                                           rules={Rules[Game.Tik_Tak_Toe]}
             />}
         </div>
     );

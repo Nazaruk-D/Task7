@@ -22,19 +22,12 @@ import {Game} from "../../enums/GameNames";
 import {Status} from "../../enums/GameStatus";
 import {WS} from "../../enums/Ws";
 
-export type HistoryItemType = {
-    squares: number[] | null[];
-    userMove: string;
-    bulls: number | null;
-    cows: number | null;
-    userMoveId?: string
-}
 
 const BullsAndCows = () => {
-    const userName = useAppSelector(selectorNameUser)
-    const userId = useAppSelector(selectorUserId)
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
+    const userName = useAppSelector(selectorNameUser)
+    const userId = useAppSelector(selectorUserId)
 
     const [history, setHistory] = useState<UserInfoType[]>([{squares: Array(4).fill(null), bulls: null, cows: null}]);
     const [myMove, setMyMove] = useState(false);
@@ -50,6 +43,21 @@ const BullsAndCows = () => {
     const myMoves = history.filter(move => move.userMoveId !== userId);
     const opponentMoves = history.filter(move => move.userMoveId === userId);
 
+    const preparationGameHandler = (yourNumber: number[]) => {
+        if (ws && userInfo && userName && yourNumber) {
+            const data = {
+                gameName: userInfo.gameName,
+                gameId: userInfo.gameId,
+                userMoveId: userInfo.userMoveId,
+                playerName: userName,
+                number: yourNumber
+            };
+            ws.emit(WS.Game_Preparation, data)
+            setPreparation(false)
+            setYourNumber(yourNumber)
+        }
+    }
+
     const onClickNewGameHandler = () => {
         setHistory([{board: Array(4).fill(null), bulls: null, cows: null}])
         setUserInfo(null)
@@ -58,7 +66,7 @@ const BullsAndCows = () => {
         startGameHandler(Game.Bulls_And_Cows, userName, ws!)
     }
 
-    const onChangeHandler = (value: string) => {
+    const onChangeRoomNumber = (value: string) => {
         if (value && ws) {
             setHistory([{board: Array(4).fill(null), bulls: null, cows: null}])
             setUserInfo(null)
@@ -68,7 +76,7 @@ const BullsAndCows = () => {
         }
     }
 
-    const handleClick = (digits: number[]) => {
+    const onMakeMove = (digits: number[]) => {
         if (ws && userInfo) {
             const data = {
                 gameId: userInfo.gameId,
@@ -108,7 +116,6 @@ const BullsAndCows = () => {
 
     useEffect(() => {
         if (!ws) {
-            // const socket = io('http://localhost:8080');
             const socket = io('wss://task7-9809.onrender.com');
             setWs(socket);
         }
@@ -118,100 +125,100 @@ const BullsAndCows = () => {
     }, [])
 
     useEffect(() => {
-        if (ws) {
-            ws.on(WS.Connect, () => {
-                console.log('Connected to server');
-                if (userName) {
-                    ws.emit(WS.Set_Name, userName)
-                }
-            });
-            ws.on(WS.User_ID, (data: string) => {
-                dispatch(setUserId(data))
-            });
-            ws.on(WS.Start_Game, (data: UserInfoType) => {
-                setPreparation(true)
-                setUserInfo(data)
-                const opponentData = data.players!.find((p: UserType) => p.id !== userId)
-                setOpponentName(opponentData!.name)
-                setGameStatus(`${Status.Start}, ${Status.Choose_A_Number}`)
-            });
-            ws.on(WS.Join_Success, (data: UserInfoType) => {
-                setGameStatus(`${Status.Successfully_Connect} ${data.gameId}`)
-                setUserInfo(data)
-            });
-
-            ws.on(WS.Join_Failed, (data: string) => {
-                setGameStatus(`${Status.Join_Failed}, ${data}`)
-            });
-            ws.on(WS.Preparation, () => {
-                setMyMove(true)
-                setGameStatus(Status.Choose_Number)
-            });
-            ws.on(WS.Start_Move, (data: UserInfoType) => {
-                setUserInfo(data)
-                if (data.userMoveId === userId) {
-                    setMyMove(true)
-                    setGameStatus(`${Status.Start}, ${Status.Your_Turn}`)
-                } else {
-                    setMyMove(false)
-                    setGameStatus(`${Status.Start}, ${Status.Opponent_Turn}`)
-                }
-            });
-            ws.on(WS.Game_Over_Timer, (data: {winner: UserType}) => {
-                setNewGame(true)
-                setMyMove(false)
-                if (data.winner.id === userId) {
-                    setGameStatus(Status.Won_On_Time)
-                } else {
-                    setGameStatus(Status.Lost_On_Time)
-                }
-            });
+        function handleConnect() {
+            console.log('Connected to server');
+            if (userName && ws) {
+                ws.emit(WS.Set_Name, userName);
+            }
         }
+        function handleUserId(data: string) {
+            dispatch(setUserId(data));
+        }
+        function handleStartGame(data: UserInfoType) {
+            setPreparation(true);
+            setUserInfo(data);
+            const opponentData = data.players!.find(
+                (p: UserType) => p.id !== userId
+            );
+            setOpponentName(opponentData!.name);
+            setGameStatus(`${Status.Start}, ${Status.Choose_A_Number}`);
+        }
+        function handleJoinSuccess(data: UserInfoType) {
+            setGameStatus(`${Status.Successfully_Connect} ${data.gameId}`);
+            setUserInfo(data);
+        }
+        function handleJoinFailed(data: string) {
+            setGameStatus(`${Status.Join_Failed}, ${data}`);
+        }
+        function handlePreparation() {
+            setMyMove(true);
+            setGameStatus(Status.Choose_Number);
+        }
+        function handleStartMove(data: UserInfoType) {
+            setUserInfo(data);
+            if (data.userMoveId === userId) {
+                setMyMove(true);
+                setGameStatus(`${Status.Start}, ${Status.Your_Turn}`);
+            } else {
+                setMyMove(false);
+                setGameStatus(`${Status.Start}, ${Status.Opponent_Turn}`);
+            }
+        }
+        function handleGameOverTimer(data: { winner: UserType }) {
+            setNewGame(true);
+            setMyMove(false);
+            if (data.winner.id === userId) {
+                setGameStatus(Status.Won_On_Time);
+            } else {
+                setGameStatus(Status.Lost_On_Time);
+            }
+        }
+
+        if (!ws) {
+            return;
+        }
+
+        ws.on(WS.Connect, handleConnect);
+        ws.on(WS.User_ID, handleUserId);
+        ws.on(WS.Start_Game, handleStartGame);
+        ws.on(WS.Join_Success, handleJoinSuccess);
+        ws.on(WS.Join_Failed, handleJoinFailed);
+        ws.on(WS.Preparation, handlePreparation);
+        ws.on(WS.Start_Move, handleStartMove);
+        ws.on(WS.Game_Over_Timer, handleGameOverTimer);
+
+        return () => {
+            ws.off(WS.Connect, handleConnect);
+            ws.off(WS.User_ID, handleUserId);
+            ws.off(WS.Start_Game, handleStartGame);
+            ws.off(WS.Join_Success, handleJoinSuccess);
+            ws.off(WS.Join_Failed, handleJoinFailed);
+            ws.off(WS.Preparation, handlePreparation);
+            ws.off(WS.Start_Move, handleStartMove);
+            ws.off(WS.Game_Over_Timer, handleGameOverTimer);
+        };
     }, [ws, userName, history, userId]);
 
     useEffect(() => {
         if (ws) {
             ws.on(WS.Check_Number_Result, handleUpdateGameState);
-            return () => {
-                ws.off(WS.Check_Number_Result, handleUpdateGameState);
-            }
-        }
-    }, [handleUpdateGameState, ws]);
-
-    useEffect(() => {
-        if (ws) {
             ws.on(WS.Game_Over, handleUpdateGameState);
             return () => {
+                ws.off(WS.Check_Number_Result, handleUpdateGameState);
                 ws.off(WS.Game_Over, handleUpdateGameState);
             }
         }
     }, [handleUpdateGameState, ws]);
 
-
     useEffect(() => {
         if (!userName) navigate(routes.login)
     }, [userName, navigate])
-
-    const preparationGameHandler = (yourNumber: number[]) => {
-        if (ws && userInfo && userName && yourNumber) {
-            const data = {
-                gameName: userInfo.gameName,
-                gameId: userInfo.gameId,
-                userMoveId: userInfo.userMoveId,
-                playerName: userName,
-                number: yourNumber
-            };
-            ws.emit(WS.Game_Preparation, data)
-            setPreparation(false)
-            setYourNumber(yourNumber)
-        }
-    }
 
     return (
         <div className={s.bullsAndCowsContainer}>
             <BackToMainMenu ws={ws}/>
             <Settings onClick={toggleSettingsGame}/>
-            <Board onClick={handleClick}
+            <Board onClick={onMakeMove}
                    myMove={myMove}
                    newGame={newGame}
                    preparation={preparation}
@@ -230,7 +237,7 @@ const BullsAndCows = () => {
             <OpponentName opponentName={opponentName}/>
             <YourNumber yourNumber={yourNumber}/>
             {settingsGame && <SettingsGame setModalActive={toggleSettingsGame} hide={toggleSettingsGame}
-                                           onChangeHandler={onChangeHandler} rules={Rules[Game.Bulls_And_Cows]}/>}
+                                           onChangeHandler={onChangeRoomNumber} rules={Rules[Game.Bulls_And_Cows]}/>}
         </div>
     );
 };
