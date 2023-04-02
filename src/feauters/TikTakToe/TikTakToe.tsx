@@ -31,7 +31,7 @@ const TikTakToe = () => {
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
 
-    const [history, setHistory] = useState([{squares: Array(9).fill(null)}]);
+    const [history, setHistory] = useState<string[] | any[]>([{squares: Array(9).fill(null)}]);
     const [stepNumber, setStepNumber] = useState(0);
     const [xIsNext, setXIsNext] = useState(true);
     const [ws, setWs] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
@@ -75,7 +75,6 @@ const TikTakToe = () => {
                     userMove: userName,
                     board: currentSquares,
                     stepNumber: stepNumber,
-                    playerId: userInfo.playerId
                 }
                 ws.emit(WS.Make_Move, data)
             }
@@ -83,21 +82,13 @@ const TikTakToe = () => {
     };
 
     const handleUpdateGameState = useCallback((data: UserInfoType) => {
-        const updatedInfo = {
-            ...userInfo,
-            board: data.board,
-            userMoveId: data.userMoveId,
-            gameId: data.gameId,
-            gameName: data.gameName,
-            winner: data.winner,
-            playerId: data.playerId,
-            message: data.message
-        };
+        const {board, userMoveId, gameId, gameName, winner, message} = data
+        const updatedInfo = {...userInfo, board, userMoveId, gameId, gameName, winner};
         setUserInfo(updatedInfo);
         if (updatedInfo.board) {
-            setHistory(prevHistory => [...prevHistory, {squares: updatedInfo.board}]);
+            setHistory(prevHistory => [...prevHistory, {squares: board}]);
             setStepNumber(prevStepNumber => prevStepNumber + 1);
-            if (data.userMoveId === userId) {
+            if (userMoveId === userId) {
                 setXIsNext(!xIsNext);
                 setMyMove(true)
                 setGameStatus(Status.Your_Turn)
@@ -109,10 +100,10 @@ const TikTakToe = () => {
         if (updatedInfo.winner) {
             setNewGame(true)
             setMyMove(false)
-            if (data.winner === Status.Draw) {
+            if (winner === Status.Draw) {
                 setGameStatus(Status.Draw)
             } else if (data.userMoveId !== userId) {
-                data.message ? setGameStatus(`${Status.Win}, ${data.message}`) : setGameStatus(`${Status.Win}!`)
+                message ? setGameStatus(`${Status.Win}, ${message}`) : setGameStatus(`${Status.Win}!`)
             } else {
                 setGameStatus(Status.Lose)
             }
@@ -142,25 +133,19 @@ const TikTakToe = () => {
             ws.on(WS.User_ID, (data: string) => {
                 dispatch(setUserId(data))
             });
-            ws.on(WS.Message, (data: any) => {
-                console.log('Message received from server:', data);
-            });
-            ws.on('disconnect', () => {
-                console.log('Disconnected from server');
-            });
-            ws.on(WS.Join_Success, (data: any) => {
+            ws.on(WS.Join_Success, (data: UserInfoType) => {
                 setGameStatus(`${Status.Successfully_Connect} ${data.gameId}`)
                 setUserInfo(data)
             });
 
-            ws.on(WS.Join_Failed, (data: any) => {
+            ws.on(WS.Join_Failed, (data: string) => {
                 console.log(data)
                 setGameStatus(`${Status.Join_Failed}, ${data}`)
             });
-            ws.on(WS.Start_Game, (data: any) => {
+            ws.on(WS.Start_Game, (data: UserInfoType) => {
                 setUserInfo(data)
-                const opponentData = data.players.find( (p: UserType) => p.id !== userId)
-                setOpponentName(opponentData.name)
+                const opponentData = data.players!.find( (p: UserType) => p.id !== userId)
+                setOpponentName(opponentData!.name)
                 if (data.userMoveId === userId) {
                     setMyMove(true)
                     setGameStatus(`${Status.Start}, ${Status.Your_Turn}`)
@@ -169,7 +154,7 @@ const TikTakToe = () => {
                     setGameStatus(`${Status.Start}, ${Status.Opponent_Turn}`)
                 }
             });
-            ws.on(WS.Game_Over_Timer, (data: any) => {
+            ws.on(WS.Game_Over_Timer, (data: {winner: UserType}) => {
                 setNewGame(true)
                 setMyMove(false)
                 if (data.winner.id === userId) {

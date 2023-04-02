@@ -36,12 +36,7 @@ const BullsAndCows = () => {
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
 
-    const [history, setHistory] = useState<HistoryItemType[]>([{
-        squares: Array(4).fill(null),
-        userMove: "",
-        bulls: null,
-        cows: null
-    }]);
+    const [history, setHistory] = useState<UserInfoType[]>([{squares: Array(4).fill(null), bulls: null, cows: null}]);
     const [myMove, setMyMove] = useState(false);
     const [ws, setWs] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
     const [userInfo, setUserInfo] = useState<UserInfoType | null>(null)
@@ -56,7 +51,7 @@ const BullsAndCows = () => {
     const opponentMoves = history.filter(move => move.userMoveId === userId);
 
     const onClickNewGameHandler = () => {
-        setHistory([{squares: Array(4).fill(null), userMove: "", bulls: null, cows: null}])
+        setHistory([{board: Array(4).fill(null), bulls: null, cows: null}])
         setUserInfo(null)
         setNewGame(false)
         setYourNumber(null)
@@ -65,7 +60,7 @@ const BullsAndCows = () => {
 
     const onChangeHandler = (value: string) => {
         if (value && ws) {
-            setHistory([{squares: Array(4).fill(null), userMove: "", bulls: null, cows: null}])
+            setHistory([{board: Array(4).fill(null), bulls: null, cows: null}])
             setUserInfo(null)
             setNewGame(false)
             setYourNumber(null)
@@ -80,33 +75,19 @@ const BullsAndCows = () => {
                 userMove: userName,
                 gameName: userInfo.gameName,
                 board: digits,
-                playerId: userInfo.playerId
             }
             ws.emit(WS.Make_Move, data)
         }
     };
 
     const handleUpdateGameState = useCallback((data: UserInfoType) => {
-        const updatedInfo = {
-            ...userInfo,
-            board: data.board,
-            userMoveId: data.userMoveId,
-            gameId: data.gameId,
-            gameName: data.gameName,
-            winner: data.winner,
-            playerId: data.playerId
-        };
-        const {bulls, cows} = data
+        const {bulls, cows, board, userMoveId, gameId, gameName, winner, message} = data
+        const updatedInfo = {...userInfo, board, userMoveId, gameId, gameName, winner};
         setUserInfo(updatedInfo);
         if (updatedInfo) {
-            const newInfo: any = {
-                squares: updatedInfo.board,
-                userMoveId: data.userMoveId || "",
-                bulls: bulls || null,
-                cows: cows || null
-            }
+            const newInfo = {board, userMoveId, bulls, cows}
             setHistory(prevHistory => [...prevHistory, newInfo]);
-            if (data.userMoveId !== userId) {
+            if (userMoveId !== userId) {
                 setMyMove(false)
                 setGameStatus(Status.Opponent_Turn)
             } else {
@@ -117,8 +98,8 @@ const BullsAndCows = () => {
         if (updatedInfo.winner) {
             setNewGame(true)
             setMyMove(false)
-            if (data.userMoveId !== userId) {
-                data.message ? setGameStatus(`${Status.Win}, ${data.message}`) : setGameStatus(`${Status.Win}!`)
+            if (userMoveId !== userId) {
+                message ? setGameStatus(`${Status.Win}, ${message}`) : setGameStatus(`${Status.Win}!`)
             } else {
                 setGameStatus(`${Status.Lose}`)
             }
@@ -147,32 +128,26 @@ const BullsAndCows = () => {
             ws.on(WS.User_ID, (data: string) => {
                 dispatch(setUserId(data))
             });
-            ws.on(WS.Message, (data: any) => {
-                console.log('Message received from server:', data);
-            });
-            ws.on(WS.Disconnect, () => {
-                console.log('Disconnected from server');
-            });
-            ws.on(WS.Start_Game, (data: any) => {
+            ws.on(WS.Start_Game, (data: UserInfoType) => {
                 setPreparation(true)
                 setUserInfo(data)
-                const opponentData = data.players.find((p: UserType) => p.id !== userId)
-                setOpponentName(opponentData.name)
+                const opponentData = data.players!.find((p: UserType) => p.id !== userId)
+                setOpponentName(opponentData!.name)
                 setGameStatus(`${Status.Start}, ${Status.Choose_A_Number}`)
             });
-            ws.on(WS.Join_Success, (data: any) => {
+            ws.on(WS.Join_Success, (data: UserInfoType) => {
                 setGameStatus(`${Status.Successfully_Connect} ${data.gameId}`)
                 setUserInfo(data)
             });
 
-            ws.on(WS.Join_Failed, (data: any) => {
+            ws.on(WS.Join_Failed, (data: string) => {
                 setGameStatus(`${Status.Join_Failed}, ${data}`)
             });
-            ws.on(WS.Preparation, (data: any) => {
+            ws.on(WS.Preparation, () => {
                 setMyMove(true)
                 setGameStatus(Status.Choose_Number)
             });
-            ws.on(WS.Start_Move, (data: any) => {
+            ws.on(WS.Start_Move, (data: UserInfoType) => {
                 setUserInfo(data)
                 if (data.userMoveId === userId) {
                     setMyMove(true)
@@ -182,7 +157,7 @@ const BullsAndCows = () => {
                     setGameStatus(`${Status.Start}, ${Status.Opponent_Turn}`)
                 }
             });
-            ws.on(WS.Game_Over_Timer, (data: any) => {
+            ws.on(WS.Game_Over_Timer, (data: {winner: UserType}) => {
                 setNewGame(true)
                 setMyMove(false)
                 if (data.winner.id === userId) {

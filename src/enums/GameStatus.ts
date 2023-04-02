@@ -4,7 +4,7 @@ export enum Status {
     Opponent_Turn = "Opponent turn",
     Draw = "Draw",
     Win = "You win",
-    Lose = "Lose",
+    Lose = "You lose",
     Successfully_Connect = "Successfully connected to the game, room number",
     Start = "Game start",
     Won_On_Time = "You win, your opponent runs out of time",

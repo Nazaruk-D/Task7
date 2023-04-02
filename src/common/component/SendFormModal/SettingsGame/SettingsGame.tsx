@@ -19,7 +19,7 @@ const SettingsGame: React.FC<EditEmailModalPropType> = ({setModalActive, hide, o
             roomNumber: "",
         },
         validate: (values) => {
-            const errors: {roomNumber?: string} = {};
+            const errors: { roomNumber?: string } = {};
             if (!values.roomNumber) {
                 errors.roomNumber = 'Enter room number'
             }
@@ -40,7 +40,8 @@ const SettingsGame: React.FC<EditEmailModalPropType> = ({setModalActive, hide, o
             </div>
             <div className={s.rules}>
                 <div className={s.title}>{rules.title}</div>
-                <div className={s.enums}>Rules of the game: {rules.enumRules.map((r,i) => <div>{i+1}. {r}</div>)}</div>
+                <div className={s.enums}>Rules of the game: {rules.enumRules.map((r, i) => <div
+                    key={i}>{i + 1}. {r}</div>)}</div>
                 <div className={s.example}>{rules.example}</div>
             </div>
             <form onSubmit={formik.handleSubmit} className={s.form}>

@@ -1,15 +1,16 @@
+import {Game} from "../../enums/GameNames";
 
 export type UserInfoType = {
-    gameId: number
-    gameName?: "tikTakToe" | "bullsAndCows"
-    userMoveId?: string
-    board?: any
+    gameName?: Game.Tik_Tak_Toe | Game.Bulls_And_Cows
+    gameId?: number
     players?: UserType[]
-    bulls?: number
-    cows?: number
+    userMoveId?: string
+    board?: number[]
+    bulls?: number | null
+    cows?: number | null
     winner?: string
-    playerId: any
     message?: string
+    squares?: number[] | null[];
 }
 
 export type UserType = {

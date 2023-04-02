@@ -10,7 +10,7 @@ type Props = {
 
 const Button = ({ onClick, disabled = false, className = '', children }: Props) => {
     return (
-        <button className={`${s.button} ${className}`} onClick={onClick} disabled={disabled}>
+        <button className={`${s.button} ${className}`} onClick={onClick} disabled={disabled} type={"submit"}>
             {children}
         </button>
     );
